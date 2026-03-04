@@ -1,0 +1,215 @@
+---
+title: Section Ordering
+description: Customize the order in which sections appear in your resume
+---
+
+The Section Ordering feature gives you complete control over how your resume is structured. You can rearrange sections to highlight your strengths and match your target role.
+
+## Overview
+
+Every resume has sections that appear in a specific order. By default, sections appear in this order:
+
+1. Personal Information
+2. Professional Summary
+3. Experience
+4. Projects
+5. Education
+6. Skills
+7. Custom Sections
+
+You can reorder these sections to create the most effective resume for your needs.
+
+## Available Sections
+
+The following section IDs can be reordered:
+
+<Note>
+  All sections use kebab-case identifiers internally:
+  - `personal-info` - Personal Information (always shows contact details)
+  - `summary` - Professional Summary
+  - `experience` - Work Experience
+  - `projects` - Projects
+  - `education` - Education
+  - `skills` - Skills
+  - `customSections` - All Custom Sections (as a group)
+</Note>
+
+## Reordering Sections
+
+<Steps>
+  <Step title="Locate the Section Order Card">
+    Find the "Section Order" card in the editor interface.
+    
+    It displays all sections in their current order, numbered from 1 onwards.
+  </Step>
+  
+  <Step title="Use the Arrow Buttons">
+    Each section has two arrow buttons:
+    
+    - **Up Arrow:** Moves the section up one position
+    - **Down Arrow:** Moves the section down one position
+    
+    Buttons are automatically disabled when a section is at the top (up arrow) or bottom (down arrow).
+  </Step>
+  
+  <Step title="Preview the Changes">
+    As you reorder sections, your resume preview updates immediately.
+    
+    The new order is saved automatically.
+  </Step>
+</Steps>
+
+## Section Labels
+
+The interface displays friendly names for each section ID:
+
+| Section ID | Display Name |
+|------------|-------------|
+| `personal-info` | Personal Information |
+| `summary` | Professional Summary |
+| `experience` | Experience |
+| `projects` | Projects |
+| `education` | Education |
+| `skills` | Skills |
+| `customSections` | Custom Sections |
+
+## Data Structure
+
+```typescript
+type SectionId = 
+  | 'personal-info' 
+  | 'summary' 
+  | 'experience' 
+  | 'projects' 
+  | 'education' 
+  | 'skills' 
+  | 'customSections';
+
+type ResumeData = {
+  // ... other fields
+  sectionOrder: SectionId[];
+};
+
+// Default order
+const defaultSectionOrder: SectionId[] = [
+  'personal-info',
+  'summary', 
+  'experience',
+  'projects',
+  'education',
+  'skills',
+  'customSections'
+];
+```
+
+## How It Works
+
+The section ordering system:
+
+1. **Stores Order:** Saves your preferred order in the `sectionOrder` array
+2. **Swap Logic:** When you click an arrow, the section swaps positions with its neighbor
+3. **Boundary Checks:** Prevents moving sections beyond the first or last position
+4. **Real-time Update:** Updates the resume preview immediately after each change
+
+### Move Section Function
+
+```typescript
+const moveSection = (index: number, direction: 'up' | 'down') => {
+  const newOrder = [...sectionOrder];
+  const targetIndex = direction === 'up' ? index - 1 : index + 1;
+  
+  // Check boundaries
+  if (targetIndex < 0 || targetIndex >= newOrder.length) return;
+  
+  // Swap positions
+  [newOrder[index], newOrder[targetIndex]] = 
+    [newOrder[targetIndex], newOrder[index]];
+  
+  reorderSections(newOrder);
+};
+```
+
+## Strategic Section Ordering
+
+Choose your section order based on your goals:
+
+### For New Graduates
+
+<Tip>
+  Lead with Education if you have a strong academic record:
+  1. Personal Information
+  2. Education
+  3. Projects
+  4. Skills
+  5. Experience
+</Tip>
+
+### For Career Changers
+
+<Tip>
+  Highlight transferable skills and relevant projects:
+  1. Personal Information
+  2. Professional Summary
+  3. Skills
+  4. Projects
+  5. Experience
+  6. Education
+</Tip>
+
+### For Experienced Professionals
+
+<Tip>
+  Lead with experience and keep the default order:
+  1. Personal Information
+  2. Professional Summary
+  3. Experience
+  4. Skills
+  5. Education
+  6. Projects
+</Tip>
+
+### For Portfolio-Focused Roles
+
+<Tip>
+  Put projects front and center for creative or technical roles:
+  1. Personal Information
+  2. Professional Summary
+  3. Projects
+  4. Experience
+  5. Skills
+  6. Education
+</Tip>
+
+## UI Features
+
+- **Numbered List:** Sections are numbered 1-7 for easy reference
+- **Visual Feedback:** Hover states on buttons indicate interactivity
+- **Disabled States:** Grayed-out arrows when sections can't move further
+- **Clean Layout:** Each section row has consistent spacing and alignment
+- **Accessibility:** Proper ARIA labels on arrow buttons ("Move up", "Move down")
+
+## Important Notes
+
+<Note>
+  The Personal Information section can be reordered, but it's strongly recommended to keep it at the top since it contains your contact details.
+</Note>
+
+<Note>
+  Custom Sections are treated as a single group. You cannot reorder individual custom sections - they appear in the order you created them.
+</Note>
+
+<Note>
+  Your section order is saved automatically with your resume data. When you export or import your resume, the section order is preserved.
+</Note>
+
+## Best Practices
+
+1. **Lead with Strengths:** Put your strongest selling points near the top
+2. **Match the Role:** Reorder sections based on job requirements
+3. **Keep it Logical:** Maintain a flow that's easy for recruiters to follow
+4. **Test Different Orders:** Try different arrangements and see what looks best
+5. **Don't Overthink:** The default order works well for most situations
+
+<Tip>
+  Recruiters typically spend 6-7 seconds on an initial resume scan. Make sure your most relevant qualifications appear in the top half of the page.
+</Tip>

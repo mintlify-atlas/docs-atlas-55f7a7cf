@@ -1,0 +1,226 @@
+---
+title: Custom Sections
+description: Create custom sections for awards, volunteering, certifications, and more
+---
+
+Custom sections allow you to add any additional information to your resume that doesn't fit into the standard categories. This is perfect for awards, volunteer work, certifications, publications, or any other achievements.
+
+## Overview
+
+The custom sections feature is flexible and powerful:
+
+- Create multiple custom sections (e.g., "Awards", "Volunteer Work", "Certifications")
+- Each section can have multiple items
+- Each item follows a consistent structure with title, subtitle, dates, and description
+
+## Creating a Custom Section
+
+<Steps>
+  <Step title="Enter Section Title">
+    In the "Add Custom Section" card, type a title for your new section.
+    
+    **Field:** Section title (string)
+    
+    **Examples:**
+    - Volunteer Experience
+    - Awards & Recognition
+    - Certifications
+    - Publications
+    - Speaking Engagements
+  </Step>
+  
+  <Step title="Click Add">
+    Click the **Add** button to create the section.
+    
+    A new card appears with your section title and an "Add Item" button.
+  </Step>
+</Steps>
+
+<Tip>
+  Choose clear, professional section titles that immediately convey the type of content they contain.
+</Tip>
+
+## Adding Items to a Section
+
+Once you've created a custom section, you can add items to it.
+
+<Steps>
+  <Step title="Click Add Item">
+    In your custom section card, click the **Add Item** button.
+    
+    An empty item form appears.
+  </Step>
+  
+  <Step title="Enter Title">
+    The main heading for this item.
+    
+    **Field:** `title` (string)
+    
+    **Examples:**
+    - Award: "Employee of the Year"
+    - Volunteer: "Volunteer Coordinator"
+    - Certification: "AWS Certified Solutions Architect"
+  </Step>
+  
+  <Step title="Enter Subtitle">
+    The organization or issuing body.
+    
+    **Field:** `subtitle` (string)
+    
+    **Examples:**
+    - "TechCorp Inc."
+    - "Local Food Bank"
+    - "Amazon Web Services"
+  </Step>
+  
+  <Step title="Add Start and End Dates">
+    When this item was active or received.
+    
+    **Fields:**
+    - `startDate` (string): Format MM/YYYY
+    - `endDate` (string): Format MM/YYYY (can be left blank for one-time awards)
+    
+    **Note:** Both dates are optional and can be used flexibly
+  </Step>
+  
+  <Step title="Write Description">
+    Add details about this item.
+    
+    **Field:** `description` (string, multi-line)
+    
+    **Tip:** Explain the significance, your role, or key achievements
+  </Step>
+</Steps>
+
+## Data Structures
+
+### Custom Section
+
+```typescript
+type CustomSection = {
+  id: string;                    // Auto-generated unique identifier
+  title: string;                 // Section title (e.g., "Awards")
+  items: CustomSectionItem[];    // Array of items in this section
+};
+```
+
+### Custom Section Item
+
+```typescript
+type CustomSectionItem = {
+  id: string;        // Auto-generated unique identifier
+  title: string;     // Item title (e.g., award name, role)
+  subtitle: string;  // Organization or issuer
+  startDate: string; // Start date (MM/YYYY)
+  endDate: string;   // End date (MM/YYYY)
+  description: string; // Detailed description
+};
+```
+
+## Managing Custom Sections and Items
+
+### Removing Items
+
+- Click the trash icon in the top-right corner of any item card
+- Items fade out smoothly when removed
+- If a section has no items, a helpful "No items added yet" message appears
+
+### Removing Entire Sections
+
+- Click the trash icon in the section header (next to "Add Item")
+- This removes the entire section and all its items
+- Use with caution - there's no undo!
+
+<Note>
+  When you remove a custom section, all items within it are permanently deleted. Make sure to export your data regularly as a backup.
+</Note>
+
+## Example Use Cases
+
+### Awards Section
+
+```
+Section Title: Awards & Recognition
+
+Item 1:
+  Title: Employee of the Year
+  Subtitle: TechCorp Inc.
+  Start Date: 12/2023
+  End Date: [blank]
+  Description: Recognized for exceptional performance and leadership in Q4 2023 product launch.
+```
+
+### Volunteer Work
+
+```
+Section Title: Volunteer Experience
+
+Item 1:
+  Title: Volunteer Coordinator
+  Subtitle: Local Food Bank
+  Start Date: 06/2022
+  End Date: 12/2023
+  Description: • Organized weekly food distribution events
+                • Coordinated team of 15+ volunteers
+                • Served 200+ families monthly
+```
+
+### Certifications
+
+```
+Section Title: Certifications
+
+Item 1:
+  Title: AWS Certified Solutions Architect
+  Subtitle: Amazon Web Services
+  Start Date: 03/2024
+  End Date: [blank]
+  Description: Professional level certification demonstrating expertise in AWS cloud architecture.
+```
+
+### Publications
+
+```
+Section Title: Publications
+
+Item 1:
+  Title: "Machine Learning in Production: Best Practices"
+  Subtitle: Tech Journal Quarterly
+  Start Date: 09/2023
+  End Date: [blank]
+  Description: Co-authored article on scalable ML deployment strategies, cited 50+ times.
+```
+
+## Form Layout and UX
+
+- **Section Creation:** Simple input + button form at the top
+- **Item Forms:** Two-column grid for title/subtitle and dates
+- **Description:** Full-width textarea for detailed content
+- **Animations:** Smooth height/opacity transitions using Framer Motion
+- **Empty States:** Clear messaging when sections or items are empty
+
+## Tips for Custom Sections
+
+<Tip>
+  Don't overdo it. Add 1-3 custom sections maximum to keep your resume focused and readable.
+</Tip>
+
+<Tip>
+  Use custom sections for information that adds real value to your application. Skip sections that don't strengthen your candidacy.
+</Tip>
+
+<Tip>
+  Keep section titles concise - typically 1-3 words. Examples: "Awards", "Certifications", "Publications".
+</Tip>
+
+<Tip>
+  For one-time achievements (like awards), you can leave the end date blank and only use the start date.
+</Tip>
+
+<Tip>
+  Use the description field to add context and impact. Don't just list - explain why it matters.
+</Tip>
+
+## Section Ordering
+
+Custom sections appear in your resume based on your [section order settings](/guide/section-ordering). The "customSections" section ID represents all your custom sections as a group. Individual custom sections cannot be reordered independently - they appear in the order you created them.

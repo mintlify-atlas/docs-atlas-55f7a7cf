@@ -1,0 +1,414 @@
+---
+title: "Export & Import"
+description: "Export resumes to PDF, backup data to JSON, and restore from backups"
+---
+
+## Overview
+
+Resume Builder provides two export formats:
+1. **PDF export** via browser print functionality
+2. **JSON export** for data backup and portability
+
+Both features ensure your resume data is portable and can be shared or transferred between devices.
+
+## PDF Export
+
+Export your resume as a PDF using the browser's native print functionality.
+
+### How It Works
+
+The PDF export button (`~/workspace/source/src/routes/index.tsx:33`) triggers the browser's print dialog:
+
+```typescript
+const handlePrint = () => {
+  window.print();
+};
+
+return (
+  <Button onClick={handlePrint} icon={<Printer size={16} />}>
+    Export PDF
+  </Button>
+);
+```
+
+Source: `~/workspace/source/src/routes/index.tsx:33`
+
+### Print Optimization
+
+The app uses CSS classes to control what appears in the PDF:
+
+**Hide Editor UI:**
+```typescript
+<header className="no-print" style={{ marginBottom: 'var(--spacing-xl)' }}>
+  {/* Editor controls - hidden in print */}
+</header>
+```
+
+**Show Full-Size Preview:**
+```typescript
+<div className="print-only" style={{ display: 'none' }}>
+  <Preview />
+</div>
+```
+
+Source: `~/workspace/source/src/routes/index.tsx:111`
+
+<Steps>
+  <Step title="Click Export PDF">
+    Click the "Export PDF" button in the header
+  </Step>
+  <Step title="Print Dialog Opens">
+    Your browser's print dialog will open
+  </Step>
+  <Step title="Configure Settings">
+    Choose "Save as PDF" as the destination
+    
+    Recommended settings:
+    - Paper size: A4
+    - Margins: None
+    - Background graphics: On
+  </Step>
+  <Step title="Save">
+    Click Save to download your resume as a PDF
+  </Step>
+</Steps>
+
+<Note>
+  The PDF export uses your browser's print functionality, which means the output quality depends on your browser. Chrome and Edge typically produce the best results.
+</Note>
+
+## JSON Export
+
+Export your resume data as JSON for backup and portability.
+
+### Export Implementation
+
+The ExportButton component (`~/workspace/source/src/components/ExportButton.tsx:5`) handles JSON export:
+
+```typescript
+export const ExportButton = () => {
+  const { resumeData } = useResume();
+
+  const handleExport = () => {
+    const dataStr = JSON.stringify(resumeData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `resume-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Button 
+      onClick={handleExport} 
+      variant="outline" 
+      size="sm"
+      icon={<Download size={14} />}
+    >
+      Export Data
+    </Button>
+  );
+};
+```
+
+Source: `~/workspace/source/src/components/ExportButton.tsx:5`
+
+### Export Process
+
+<Steps>
+  <Step title="Serialize Data">
+    Convert resume data to JSON string with formatting
+    
+    ```typescript
+    const dataStr = JSON.stringify(resumeData, null, 2);
+    ```
+  </Step>
+  <Step title="Create Blob">
+    Create a Blob with JSON content type
+    
+    ```typescript
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    ```
+  </Step>
+  <Step title="Generate Download">
+    Create temporary download link with filename including current date
+    
+    ```typescript
+    link.download = `resume-${new Date().toISOString().split('T')[0]}.json`;
+    ```
+  </Step>
+  <Step title="Trigger Download">
+    Programmatically click the link and clean up
+  </Step>
+</Steps>
+
+### Exported JSON Structure
+
+The exported JSON file contains your complete resume data:
+
+```json
+{
+  "personalInfo": {
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    "phone": "+1 234 567 890",
+    "website": "johndoe.com",
+    "linkedin": "linkedin.com/in/johndoe",
+    "github": "github.com/johndoe",
+    "location": "New York, NY",
+    "jobTitle": "Software Engineer"
+  },
+  "summary": "Experienced software engineer...",
+  "experience": [
+    {
+      "id": "uuid-here",
+      "company": "Tech Corp",
+      "position": "Senior Developer",
+      "location": "San Francisco, CA",
+      "startDate": "2020-01",
+      "endDate": "2024-03",
+      "current": false,
+      "description": "Led development of..."
+    }
+  ],
+  "education": [...],
+  "skills": [...],
+  "projects": [...],
+  "customSections": [...],
+  "sectionOrder": [
+    "personal-info",
+    "summary",
+    "experience",
+    "projects",
+    "education",
+    "skills",
+    "customSections"
+  ]
+}
+```
+
+<Info>
+  The filename automatically includes the current date (e.g., `resume-2026-03-04.json`) to help you track versions.
+</Info>
+
+## JSON Import
+
+Restore your resume from a previously exported JSON file.
+
+### Import Implementation
+
+The ImportButton component (`~/workspace/source/src/components/ImportButton.tsx:7`) handles JSON import:
+
+```typescript
+export const ImportButton = () => {
+  const { setResumeData } = useResume();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const content = e.target?.result as string;
+        const data = JSON.parse(content) as ResumeData;
+        
+        // Basic validation
+        if (!data.personalInfo || !data.experience || !data.education) {
+          throw new Error('Invalid resume data format');
+        }
+        
+        // Migrate old data if needed
+        if (data.sectionOrder && !data.sectionOrder.includes('personal-info')) {
+          data.sectionOrder = ['personal-info', ...data.sectionOrder];
+        }
+        
+        setResumeData(data);
+        setError(null);
+        alert('Resume data imported successfully!');
+      } catch (err) {
+        setError('Failed to import: Invalid JSON format');
+        console.error('Import error:', err);
+        alert('Failed to import resume data. Please check the file format.');
+      }
+    };
+    reader.readAsText(file);
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  return (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleImport}
+        style={{ display: 'none' }}
+      />
+      <Button 
+        onClick={() => fileInputRef.current?.click()} 
+        variant="outline" 
+        size="sm"
+        icon={<Upload size={14} />}
+      >
+        Import Data
+      </Button>
+    </>
+  );
+};
+```
+
+Source: `~/workspace/source/src/components/ImportButton.tsx:7`
+
+### Import Process
+
+<Steps>
+  <Step title="Select File">
+    Click "Import Data" button to open file picker
+    
+    Only `.json` files are accepted
+  </Step>
+  <Step title="Read File">
+    FileReader API reads the file contents as text
+    
+    ```typescript
+    const reader = new FileReader();
+    reader.readAsText(file);
+    ```
+  </Step>
+  <Step title="Parse & Validate">
+    Parse JSON and validate required fields exist
+    
+    ```typescript
+    const data = JSON.parse(content) as ResumeData;
+    
+    if (!data.personalInfo || !data.experience || !data.education) {
+      throw new Error('Invalid resume data format');
+    }
+    ```
+  </Step>
+  <Step title="Migrate Data">
+    Apply any necessary migrations for older data formats
+    
+    ```typescript
+    if (data.sectionOrder && !data.sectionOrder.includes('personal-info')) {
+      data.sectionOrder = ['personal-info', ...data.sectionOrder];
+    }
+    ```
+  </Step>
+  <Step title="Update State">
+    Replace current resume data with imported data
+    
+    The auto-save mechanism immediately persists it to localStorage
+  </Step>
+</Steps>
+
+### Data Validation
+
+The import function validates that the JSON contains the required structure:
+
+<Accordion title="Required Fields">
+  - `personalInfo` object must exist
+  - `experience` array must exist
+  - `education` array must exist
+  
+  Other fields will use default values if missing.
+</Accordion>
+
+### Data Migration
+
+The import process includes automatic migration for older data formats:
+
+```typescript
+// Ensure personal-info is in sectionOrder
+if (data.sectionOrder && !data.sectionOrder.includes('personal-info')) {
+  data.sectionOrder = ['personal-info', ...data.sectionOrder];
+}
+```
+
+Source: `~/workspace/source/src/components/ImportButton.tsx:28`
+
+This ensures backward compatibility when the app's data structure evolves.
+
+<Warning>
+  Importing a JSON file will completely replace your current resume data. Make sure to export your current data first if you want to keep it.
+</Warning>
+
+## Use Cases
+
+### Backup & Version Control
+
+<CodeGroup>
+```bash Regular Backups
+# Export your resume weekly
+resume-2026-03-04.json
+resume-2026-03-11.json
+resume-2026-03-18.json
+```
+
+```bash Version Control
+# Track different versions for different roles
+resume-frontend-developer.json
+resume-fullstack-engineer.json
+resume-tech-lead.json
+```
+</CodeGroup>
+
+### Cross-Device Transfer
+
+1. Export JSON on Device A
+2. Transfer file via email, cloud storage, or USB
+3. Import JSON on Device B
+4. Continue editing with all your data
+
+### Sharing Templates
+
+Share your resume structure (without personal data) with others:
+
+1. Export your resume
+2. Edit the JSON to remove personal information
+3. Share the template structure
+4. Others can import and fill in their own data
+
+<Tip>
+  Combine PDF export for sharing your resume with recruiters, and JSON export for maintaining backups and transferring between devices.
+</Tip>
+
+## Error Handling
+
+The import process includes comprehensive error handling:
+
+**Invalid JSON:**
+```typescript
+try {
+  const data = JSON.parse(content) as ResumeData;
+} catch (err) {
+  setError('Failed to import: Invalid JSON format');
+  alert('Failed to import resume data. Please check the file format.');
+}
+```
+
+**Missing Required Fields:**
+```typescript
+if (!data.personalInfo || !data.experience || !data.education) {
+  throw new Error('Invalid resume data format');
+}
+```
+
+Source: `~/workspace/source/src/components/ImportButton.tsx:23`
+
+Error messages are displayed both in the UI and via browser alerts to ensure users are aware of import failures.
+
+<Frame>
+  <img src="/images/import-error.png" alt="Import error message" />
+</Frame>

@@ -1,0 +1,288 @@
+---
+title: Template System Overview
+description: Learn how the Resume Builder template system works
+---
+
+The Resume Builder uses a flexible JSON-based template system that controls the visual appearance and layout of resumes. Each template defines colors, typography, spacing, layout structure, and section variants.
+
+## How Templates Work
+
+Templates are JSON configuration files that define:
+- **Theme**: Colors, typography, and spacing
+- **Layout**: Single-column or two-column with optional sidebar
+- **Structure**: Which sections appear in which areas
+- **Section Variants**: Visual styles for each section
+
+When you select a template, the Resume Renderer reads the configuration and applies it to your resume data, generating a styled PDF output.
+
+<Info>
+All templates are located in `/src/templates/` as JSON files. The system currently includes three built-in templates: Modern, Minimal, and Classic.
+</Info>
+
+## Template JSON Structure
+
+Here's the complete structure of a template configuration:
+
+```json
+{
+  "id": "modern",
+  "name": "Modern",
+  "description": "A contemporary two-column layout with a vibrant sidebar.",
+  "theme": {
+    "colors": {
+      "primary": "#2563eb",
+      "secondary": "#2563eb",
+      "background": "#ffffff",
+      "text": "#1a1a1a",
+      "textMuted": "#666666",
+      "border": "#e0e0e0",
+      "sidebarText": "#ffffff"
+    },
+    "typography": {
+      "fontFamily": "Inter, sans-serif",
+      "headingFamily": "Inter, sans-serif",
+      "baseSize": "10pt",
+      "lineHeight": "1.5"
+    },
+    "spacing": {
+      "sectionGap": "2rem",
+      "itemGap": "1rem",
+      "pagePadding": "2rem"
+    }
+  },
+  "layout": {
+    "type": "two-column",
+    "columns": "35% 1fr",
+    "sidebarPosition": "left"
+  },
+  "structure": {
+    "sidebar": [
+      "personal-info",
+      "skills",
+      "education"
+    ],
+    "main": [
+      "summary",
+      "experience",
+      "projects",
+      "customSections"
+    ]
+  },
+  "sectionVariants": {
+    "personal-info": "default",
+    "summary": "default",
+    "experience": "default",
+    "education": "default",
+    "skills": "sidebar",
+    "projects": "default",
+    "customSections": "default"
+  }
+}
+```
+
+## Theme Configuration
+
+The `theme` object controls the visual styling of your template.
+
+### Colors
+
+Define the color palette for your template:
+
+<ResponseField name="primary" type="string" required>
+  Primary accent color (used for headings, highlights)
+</ResponseField>
+
+<ResponseField name="secondary" type="string" required>
+  Secondary accent color (used for backgrounds, subtle highlights)
+</ResponseField>
+
+<ResponseField name="background" type="string" required>
+  Page background color
+</ResponseField>
+
+<ResponseField name="text" type="string" required>
+  Main text color
+</ResponseField>
+
+<ResponseField name="textMuted" type="string" required>
+  Muted text color (used for dates, secondary information)
+</ResponseField>
+
+<ResponseField name="border" type="string" required>
+  Border color for dividers and separators
+</ResponseField>
+
+<ResponseField name="sidebarText" type="string">
+  Text color for sidebar content (only used in two-column layouts)
+</ResponseField>
+
+### Typography
+
+Control font styles and sizing:
+
+<ResponseField name="fontFamily" type="string" required>
+  Primary font family for body text
+</ResponseField>
+
+<ResponseField name="headingFamily" type="string">
+  Font family for headings (defaults to `fontFamily` if not specified)
+</ResponseField>
+
+<ResponseField name="baseSize" type="string" required>
+  Base font size (e.g., "10pt", "11pt")
+</ResponseField>
+
+<ResponseField name="lineHeight" type="string" required>
+  Line height for body text (e.g., "1.5", "1.6")
+</ResponseField>
+
+<CodeGroup>
+```json Modern Template
+"typography": {
+  "fontFamily": "Inter, sans-serif",
+  "headingFamily": "Inter, sans-serif",
+  "baseSize": "10pt",
+  "lineHeight": "1.5"
+}
+```
+
+```json Classic Template
+"typography": {
+  "fontFamily": "Merriweather, serif",
+  "headingFamily": "Merriweather, serif",
+  "baseSize": "11pt",
+  "lineHeight": "1.6"
+}
+```
+</CodeGroup>
+
+### Spacing
+
+Define spacing between elements:
+
+<ResponseField name="sectionGap" type="string" required>
+  Space between sections (e.g., "2rem", "1.5rem")
+</ResponseField>
+
+<ResponseField name="itemGap" type="string" required>
+  Space between items within a section
+</ResponseField>
+
+<ResponseField name="pagePadding" type="string" required>
+  Page margins/padding (e.g., "2rem", "3rem 2.5rem", "2.5cm")
+</ResponseField>
+
+## Layout Types
+
+Templates support two layout types:
+
+### Single-Column Layout
+
+A traditional single-column layout where all sections flow vertically:
+
+```json
+"layout": {
+  "type": "single-column"
+},
+"structure": {
+  "main": [
+    "personal-info",
+    "summary",
+    "experience",
+    "projects",
+    "education",
+    "skills",
+    "customSections"
+  ]
+}
+```
+
+### Two-Column Layout
+
+A two-column layout with a sidebar for specific sections:
+
+```json
+"layout": {
+  "type": "two-column",
+  "columns": "35% 1fr",
+  "sidebarPosition": "left"
+},
+"structure": {
+  "sidebar": ["personal-info", "skills", "education"],
+  "main": ["summary", "experience", "projects", "customSections"]
+}
+```
+
+<ParamField path="columns" type="string">
+  CSS grid column definition (e.g., "30% 70%", "35% 1fr")
+</ParamField>
+
+<ParamField path="sidebarPosition" type="'left' | 'right'">
+  Position of the sidebar column
+</ParamField>
+
+## Section Variants
+
+Section variants control how individual sections are rendered. Each section can have a different visual style:
+
+<ResponseField name="Available Variants" type="string">
+  - `default` - Standard section styling
+  - `centered` - Center-aligned content (typically for personal info)
+  - `minimal` - Minimalist styling with reduced visual weight
+  - `timeline` - Timeline-style layout with dates
+  - `grid` - Grid-based layout
+  - `tags` - Tag/badge style (good for skills)
+  - `bubbles` - Bubble/pill style
+  - `bullet-list` - Simple bullet list
+  - `sidebar` - Sidebar-optimized styling
+  - `compact` - Dense, space-efficient layout
+</ResponseField>
+
+### Example: Different Skill Variants
+
+<CodeGroup>
+```json Modern (Sidebar)
+"sectionVariants": {
+  "skills": "sidebar"
+}
+```
+
+```json Minimal (Bullet List)
+"sectionVariants": {
+  "skills": "bullet-list"
+}
+```
+
+```json Classic (List)
+"sectionVariants": {
+  "skills": "list"
+}
+```
+</CodeGroup>
+
+## Built-in Templates
+
+The system includes three pre-built templates:
+
+<CardGroup cols={3}>
+  <Card title="Modern" icon="palette">
+    Two-column layout with vibrant sidebar and contemporary styling
+  </Card>
+  <Card title="Minimal" icon="minimize">
+    Clean single-column layout with elegant typography
+  </Card>
+  <Card title="Classic" icon="file-lines">
+    Traditional professional layout with serif fonts
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Creating Templates" icon="plus" href="/dev/templates/creating-templates">
+    Learn how to create your own custom templates
+  </Card>
+  <Card title="Type Definitions" icon="code" href="/dev/architecture/type-definitions">
+    View the TypeScript types for templates
+  </Card>
+</CardGroup>

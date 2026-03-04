@@ -1,0 +1,210 @@
+---
+title: 'Architecture'
+description: 'Learn about the Resume Builder application architecture and design patterns'
+---
+
+## Overview
+
+The Resume Builder is a client-side React application built with modern web technologies. The architecture emphasizes simplicity, type safety, and a great user experience with real-time preview capabilities.
+
+## Application Architecture
+
+The application follows a traditional React component-based architecture with centralized state management:
+
+```
+┌─────────────────────────────────────┐
+│         TanStack Router             │
+│      (Routing & Navigation)         │
+└──────────────┬──────────────────────┘
+               │
+               ▼
+┌─────────────────────────────────────┐
+│       ResumeProvider                │
+│    (React Context + State)          │
+└──────────────┬──────────────────────┘
+               │
+       ┌───────┴───────┐
+       ▼               ▼
+┌─────────────┐ ┌─────────────┐
+│   Editor    │ │   Preview   │
+│ Components  │ │  Component  │
+└─────────────┘ └─────────────┘
+```
+
+## State Management
+
+You manage application state using React Context API through the `ResumeProvider` component located in `src/hooks/useResume.tsx:36`.
+
+### ResumeContext
+
+The context provides:
+
+- **Resume data state**: Personal info, experience, education, skills, projects, and custom sections
+- **Template selection**: Currently selected template (classic, modern, or minimal)
+- **CRUD operations**: Methods to add, update, and remove resume entries
+- **Section ordering**: Drag-and-drop reordering of resume sections
+
+### Data Persistence
+
+The application uses browser `localStorage` for data persistence:
+
+- Resume data is saved to `resume-builder-data` key
+- Selected template is saved to `resume-builder-template` key
+- Data is automatically saved on every state change via `useEffect` hooks (src/hooks/useResume.tsx:66)
+
+<Note>
+All data is stored locally in the user's browser. No server-side storage is used.
+</Note>
+
+## Component Hierarchy
+
+The application has a clear component hierarchy:
+
+### Root Level
+
+- **__root.tsx**: Defines the HTML document structure, metadata, and includes TanStack devtools
+- **router.tsx**: Configures TanStack Router with the generated route tree
+
+### Page Level
+
+- **index.tsx**: Main application page wrapped with `ResumeProvider`
+- Contains the split-view layout (Editor + Preview)
+
+### Feature Components
+
+**Editor Components** (`src/components/Editor/`):
+- `PersonalInfoForm`: Contact information and job title
+- `ExperienceForm`: Work experience entries
+- `EducationForm`: Educational background
+- `SkillsForm`: Skills management
+- `ProjectsForm`: Project showcases
+- `CustomSectionForm`: User-defined sections
+
+**Preview Components** (`src/components/Preview/`):
+- `Preview`: Main preview container
+- `SectionRenderer`: Renders individual sections
+
+**Renderer Components** (`src/components/ResumeRenderer/`):
+- `UniversalRenderer`: Template-agnostic rendering engine
+- `SectionRenderer`: Section-specific rendering logic
+- Section-specific components in `sections/` directory
+
+### UI Components
+
+Reusable UI primitives in `src/components/ui/`:
+- `Button`: Action buttons
+- `Card`: Container component
+- `Input`: Form inputs and textareas
+
+## Data Flow
+
+### Editing Flow
+
+1. User interacts with an Editor form component
+2. Form calls a method from `useResume()` hook
+3. Context updates the state
+4. `useEffect` persists to localStorage
+5. Preview component automatically re-renders with new data
+
+```typescript
+// Example: Updating personal info
+const { updatePersonalInfo } = useResume();
+
+// User types in input
+updatePersonalInfo('fullName', 'John Doe');
+
+// Context updates state → localStorage saves → Preview updates
+```
+
+### Template Switching Flow
+
+1. User selects a template from `TemplateSelector`
+2. `setSelectedTemplate` updates context state
+3. Template preference saved to localStorage
+4. Preview re-renders using the new template's styling from `src/templates/`
+
+### Section Reordering Flow
+
+1. User drags sections in `SectionOrderEditor` (uses `@dnd-kit`)
+2. `reorderSections` called with new order array
+3. Context updates `sectionOrder` in resume data
+4. Preview reflects new section arrangement
+
+## Rendering Architecture
+
+The application uses a **template-driven rendering** approach:
+
+### Template System
+
+Templates are JSON configuration files in `src/templates/`:
+- `classic.json`: Traditional serif layout
+- `modern.json`: Contemporary design
+- `minimal.json`: Clean, minimalist style
+
+Each template defines:
+- **Theme**: Colors, typography, spacing
+- **Layout**: Column structure
+- **Structure**: Section ordering
+- **Variants**: Section-specific styling
+
+### Universal Renderer
+
+The `UniversalRenderer` component reads template configuration and applies:
+- CSS custom properties for theming
+- Dynamic section rendering based on `sectionOrder`
+- Template-specific variants for each section type
+
+<Tip>
+The universal renderer approach allows you to add new templates without changing component code—just add a new JSON configuration file.
+</Tip>
+
+## Type Safety
+
+The application is fully typed with TypeScript. Core types are defined in `src/types.ts:1`:
+
+- `ResumeData`: Complete resume structure
+- `PersonalInfo`, `Experience`, `Education`, etc.: Individual section types
+- `ResumeTemplate`: Template variant type
+- `SectionId`: Valid section identifiers
+
+## Build Architecture
+
+The application uses **Vite** as the build tool with:
+
+- **TanStack Start**: Full-stack React framework
+- **TanStack Router Plugin**: Automatic route generation
+- **Tailwind CSS**: Utility-first styling via Vite plugin
+- **TypeScript**: Type checking and compilation
+
+Build outputs are optimized for static deployment with server-side rendering (SSR) support.
+
+## Performance Considerations
+
+### Client-Side Rendering
+
+- Real-time preview updates without network requests
+- LocalStorage for instant data persistence
+- Component memoization where beneficial
+
+### Print Optimization
+
+- Print-specific CSS styles
+- Full-size preview rendering for PDF export
+- Hidden UI elements during print (`no-print` class)
+
+### Responsive Design
+
+- Mobile: Single column with modal preview
+- Desktop: Split-view with sticky preview
+- Floating preview button for mobile users
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Tech Stack" icon="layer-group" href="/dev/tech-stack">
+    Explore the technologies powering the application
+  </Card>
+  <Card title="Project Structure" icon="folder-tree" href="/dev/project-structure">
+    Navigate the codebase directory structure
+  </Card>
+</CardGroup>

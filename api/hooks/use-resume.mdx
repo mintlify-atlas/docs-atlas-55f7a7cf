@@ -1,0 +1,435 @@
+---
+title: 'useResume Hook'
+description: 'Complete API reference for the useResume hook'
+---
+
+## Overview
+
+The `useResume` hook provides access to the resume data context and all methods for managing resume content. It must be used within a `ResumeProvider`.
+
+```typescript
+import { useResume } from './hooks/useResume';
+
+function MyComponent() {
+  const { resumeData, updatePersonalInfo } = useResume();
+  // ...
+}
+```
+
+## Return Type
+
+The hook returns a `ResumeContextType` object with the following properties:
+
+```typescript
+interface ResumeContextType {
+  resumeData: ResumeData;
+  setResumeData: React.Dispatch<React.SetStateAction<ResumeData>>;
+  selectedTemplate: ResumeTemplate;
+  setSelectedTemplate: React.Dispatch<React.SetStateAction<ResumeTemplate>>;
+  updatePersonalInfo: (field: keyof ResumeData['personalInfo'], value: string) => void;
+  updateSummary: (value: string) => void;
+  addExperience: () => void;
+  updateExperience: (id: string, field: keyof Experience, value: any) => void;
+  removeExperience: (id: string) => void;
+  addEducation: () => void;
+  updateEducation: (id: string, field: keyof Education, value: any) => void;
+  removeEducation: (id: string) => void;
+  addSkill: (skillName: string) => void;
+  removeSkill: (id: string) => void;
+  addProject: () => void;
+  updateProject: (id: string, field: keyof Project, value: any) => void;
+  removeProject: (id: string) => void;
+  addCustomSection: (title: string) => void;
+  updateCustomSection: (id: string, title: string) => void;
+  removeCustomSection: (id: string) => void;
+  addCustomSectionItem: (sectionId: string) => void;
+  updateCustomSectionItem: (sectionId: string, itemId: string, field: keyof CustomSectionItem, value: string) => void;
+  removeCustomSectionItem: (sectionId: string, itemId: string) => void;
+  reorderSections: (newOrder: SectionId[]) => void;
+}
+```
+
+## State
+
+<ResponseField name="resumeData" type="ResumeData">
+  The complete resume data object containing all sections
+</ResponseField>
+
+<ResponseField name="setResumeData" type="React.Dispatch<React.SetStateAction<ResumeData>>">
+  Direct state setter for resume data (use specific update methods when possible)
+</ResponseField>
+
+<ResponseField name="selectedTemplate" type="ResumeTemplate">
+  The currently selected resume template (`'classic'`, `'modern'`, or `'minimal'`)
+</ResponseField>
+
+<ResponseField name="setSelectedTemplate" type="React.Dispatch<React.SetStateAction<ResumeTemplate>>">
+  Updates the selected resume template
+</ResponseField>
+
+## Personal Info Methods
+
+### updatePersonalInfo
+
+Updates a specific field in the personal information section.
+
+<ParamField path="field" type="keyof PersonalInfo" required>
+  The field to update (e.g., `'fullName'`, `'email'`, `'phone'`)
+</ParamField>
+
+<ParamField path="value" type="string" required>
+  The new value for the field
+</ParamField>
+
+```typescript
+const { updatePersonalInfo } = useResume();
+
+updatePersonalInfo('fullName', 'John Doe');
+updatePersonalInfo('email', 'john@example.com');
+```
+
+### updateSummary
+
+Updates the professional summary section.
+
+<ParamField path="value" type="string" required>
+  The new summary text
+</ParamField>
+
+```typescript
+const { updateSummary } = useResume();
+
+updateSummary('Experienced software engineer with 5 years...');
+```
+
+## Experience Methods
+
+### addExperience
+
+Adds a new empty experience entry to the resume.
+
+```typescript
+const { addExperience } = useResume();
+
+addExperience();
+```
+
+### updateExperience
+
+Updates a specific field of an experience entry.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the experience entry
+</ParamField>
+
+<ParamField path="field" type="keyof Experience" required>
+  The field to update (e.g., `'company'`, `'position'`, `'current'`)
+</ParamField>
+
+<ParamField path="value" type="any" required>
+  The new value for the field
+</ParamField>
+
+```typescript
+const { updateExperience } = useResume();
+
+updateExperience('exp-id-123', 'company', 'Acme Corp');
+updateExperience('exp-id-123', 'current', true);
+```
+
+### removeExperience
+
+Removes an experience entry from the resume.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the experience entry to remove
+</ParamField>
+
+```typescript
+const { removeExperience } = useResume();
+
+removeExperience('exp-id-123');
+```
+
+## Education Methods
+
+### addEducation
+
+Adds a new empty education entry to the resume.
+
+```typescript
+const { addEducation } = useResume();
+
+addEducation();
+```
+
+### updateEducation
+
+Updates a specific field of an education entry.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the education entry
+</ParamField>
+
+<ParamField path="field" type="keyof Education" required>
+  The field to update (e.g., `'school'`, `'degree'`, `'field'`)
+</ParamField>
+
+<ParamField path="value" type="any" required>
+  The new value for the field
+</ParamField>
+
+```typescript
+const { updateEducation } = useResume();
+
+updateEducation('edu-id-456', 'school', 'MIT');
+updateEducation('edu-id-456', 'degree', 'Bachelor of Science');
+```
+
+### removeEducation
+
+Removes an education entry from the resume.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the education entry to remove
+</ParamField>
+
+```typescript
+const { removeEducation } = useResume();
+
+removeEducation('edu-id-456');
+```
+
+## Skills Methods
+
+### addSkill
+
+Adds a new skill to the resume.
+
+<ParamField path="skillName" type="string" required>
+  The name of the skill to add
+</ParamField>
+
+```typescript
+const { addSkill } = useResume();
+
+addSkill('React');
+addSkill('TypeScript');
+```
+
+### removeSkill
+
+Removes a skill from the resume.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the skill to remove
+</ParamField>
+
+```typescript
+const { removeSkill } = useResume();
+
+removeSkill('skill-id-789');
+```
+
+## Project Methods
+
+### addProject
+
+Adds a new empty project entry to the resume.
+
+```typescript
+const { addProject } = useResume();
+
+addProject();
+```
+
+### updateProject
+
+Updates a specific field of a project entry.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the project entry
+</ParamField>
+
+<ParamField path="field" type="keyof Project" required>
+  The field to update (e.g., `'name'`, `'description'`, `'technologies'`)
+</ParamField>
+
+<ParamField path="value" type="any" required>
+  The new value for the field
+</ParamField>
+
+```typescript
+const { updateProject } = useResume();
+
+updateProject('proj-id-321', 'name', 'E-commerce Platform');
+updateProject('proj-id-321', 'technologies', ['React', 'Node.js']);
+```
+
+### removeProject
+
+Removes a project entry from the resume.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the project to remove
+</ParamField>
+
+```typescript
+const { removeProject } = useResume();
+
+removeProject('proj-id-321');
+```
+
+## Custom Section Methods
+
+### addCustomSection
+
+Adds a new custom section to the resume.
+
+<ParamField path="title" type="string" required>
+  The title of the custom section (e.g., "Certifications", "Publications")
+</ParamField>
+
+```typescript
+const { addCustomSection } = useResume();
+
+addCustomSection('Certifications');
+```
+
+### updateCustomSection
+
+Updates the title of a custom section.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the custom section
+</ParamField>
+
+<ParamField path="title" type="string" required>
+  The new title for the section
+</ParamField>
+
+```typescript
+const { updateCustomSection } = useResume();
+
+updateCustomSection('section-id-999', 'Professional Certifications');
+```
+
+### removeCustomSection
+
+Removes a custom section from the resume.
+
+<ParamField path="id" type="string" required>
+  The unique ID of the custom section to remove
+</ParamField>
+
+```typescript
+const { removeCustomSection } = useResume();
+
+removeCustomSection('section-id-999');
+```
+
+### addCustomSectionItem
+
+Adds a new item to a custom section.
+
+<ParamField path="sectionId" type="string" required>
+  The unique ID of the custom section
+</ParamField>
+
+```typescript
+const { addCustomSectionItem } = useResume();
+
+addCustomSectionItem('section-id-999');
+```
+
+### updateCustomSectionItem
+
+Updates a specific field of an item in a custom section.
+
+<ParamField path="sectionId" type="string" required>
+  The unique ID of the custom section
+</ParamField>
+
+<ParamField path="itemId" type="string" required>
+  The unique ID of the item within the section
+</ParamField>
+
+<ParamField path="field" type="keyof CustomSectionItem" required>
+  The field to update (e.g., `'title'`, `'description'`)
+</ParamField>
+
+<ParamField path="value" type="string" required>
+  The new value for the field
+</ParamField>
+
+```typescript
+const { updateCustomSectionItem } = useResume();
+
+updateCustomSectionItem('section-id-999', 'item-id-111', 'title', 'AWS Certified Developer');
+```
+
+### removeCustomSectionItem
+
+Removes an item from a custom section.
+
+<ParamField path="sectionId" type="string" required>
+  The unique ID of the custom section
+</ParamField>
+
+<ParamField path="itemId" type="string" required>
+  The unique ID of the item to remove
+</ParamField>
+
+```typescript
+const { removeCustomSectionItem } = useResume();
+
+removeCustomSectionItem('section-id-999', 'item-id-111');
+```
+
+## Section Management
+
+### reorderSections
+
+Reorders the sections on the resume.
+
+<ParamField path="newOrder" type="SectionId[]" required>
+  Array of section IDs in the desired order
+</ParamField>
+
+```typescript
+const { reorderSections } = useResume();
+
+reorderSections([
+  'personal-info',
+  'summary',
+  'skills',
+  'experience',
+  'education',
+  'projects',
+  'customSections'
+]);
+```
+
+## Provider Setup
+
+Wrap your application with `ResumeProvider` to enable the hook:
+
+```typescript
+import { ResumeProvider } from './hooks/useResume';
+
+function App() {
+  return (
+    <ResumeProvider>
+      {/* Your app components */}
+    </ResumeProvider>
+  );
+}
+```
+
+## Data Persistence
+
+The hook automatically persists data to `localStorage` under the keys:
+- `resume-builder-data` - Resume data
+- `resume-builder-template` - Selected template
+
+Data is loaded on mount and saved whenever it changes.

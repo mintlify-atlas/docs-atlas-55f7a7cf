@@ -1,0 +1,448 @@
+---
+title: 'Resume Context'
+description: 'Learn how ResumeContext manages application state'
+---
+
+## Overview
+
+The Resume Builder uses React Context to manage all resume data and template selection. The `ResumeContext` provides centralized state management with automatic localStorage persistence.
+
+## Context Structure
+
+The context is implemented in `src/hooks/useResume.tsx:34` and provides access to resume data, template selection, and mutation methods.
+
+### ResumeContextType Interface
+
+```typescript
+interface ResumeContextType {
+  resumeData: ResumeData;
+  setResumeData: React.Dispatch<React.SetStateAction<ResumeData>>;
+  selectedTemplate: ResumeTemplate;
+  setSelectedTemplate: React.Dispatch<React.SetStateAction<ResumeTemplate>>;
+  
+  // Personal Info
+  updatePersonalInfo: (field: keyof ResumeData['personalInfo'], value: string) => void;
+  updateSummary: (value: string) => void;
+  
+  // Experience
+  addExperience: () => void;
+  updateExperience: (id: string, field: keyof Experience, value: any) => void;
+  removeExperience: (id: string) => void;
+  
+  // Education
+  addEducation: () => void;
+  updateEducation: (id: string, field: keyof Education, value: any) => void;
+  removeEducation: (id: string) => void;
+  
+  // Skills
+  addSkill: (skillName: string) => void;
+  removeSkill: (id: string) => void;
+  
+  // Projects
+  addProject: () => void;
+  updateProject: (id: string, field: keyof Project, value: any) => void;
+  removeProject: (id: string) => void;
+  
+  // Custom Sections
+  addCustomSection: (title: string) => void;
+  updateCustomSection: (id: string, title: string) => void;
+  removeCustomSection: (id: string) => void;
+  addCustomSectionItem: (sectionId: string) => void;
+  updateCustomSectionItem: (sectionId: string, itemId: string, field: keyof CustomSectionItem, value: string) => void;
+  removeCustomSectionItem: (sectionId: string, itemId: string) => void;
+  
+  // Section Ordering
+  reorderSections: (newOrder: SectionId[]) => void;
+}
+```
+
+## ResumeProvider
+
+The `ResumeProvider` component wraps your application and makes the context available to all child components.
+
+### Setup
+
+```tsx
+import { ResumeProvider } from './hooks/useResume';
+
+function App() {
+  return (
+    <ResumeProvider>
+      <YourComponents />
+    </ResumeProvider>
+  );
+}
+```
+
+### Initial State
+
+The provider initializes state from localStorage on mount (`src/hooks/useResume.tsx:37-54`):
+
+```typescript
+const [resumeData, setResumeData] = useState<ResumeData>(() => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Migrate old data: ensure personal-info is in sectionOrder
+        if (parsed.sectionOrder && !parsed.sectionOrder.includes('personal-info')) {
+          parsed.sectionOrder = ['personal-info', ...parsed.sectionOrder];
+        }
+        return parsed;
+      } catch (e) {
+        console.error('Failed to parse resume data', e);
+      }
+    }
+  }
+  return initialResumeData;
+});
+```
+
+## Using the Context
+
+Access the context in any component using the `useResume` hook:
+
+```tsx
+import { useResume } from './hooks/useResume';
+
+function MyComponent() {
+  const { resumeData, updatePersonalInfo } = useResume();
+  
+  return (
+    <input
+      value={resumeData.personalInfo.fullName}
+      onChange={(e) => updatePersonalInfo('fullName', e.target.value)}
+    />
+  );
+}
+```
+
+<Warning>
+The `useResume` hook must be called within a `ResumeProvider`. It will throw an error if used outside the provider context (`src/hooks/useResume.tsx:332-334`).
+</Warning>
+
+## State Structure
+
+The `ResumeData` type defines the complete resume state:
+
+```typescript
+type ResumeData = {
+  personalInfo: PersonalInfo;      // Name, email, phone, etc.
+  summary: string;                  // Professional summary
+  experience: Experience[];         // Work experience entries
+  education: Education[];           // Education entries
+  skills: Skill[];                  // Skills list
+  projects: Project[];              // Project entries
+  customSections: CustomSection[];  // User-defined sections
+  sectionOrder: SectionId[];        // Order of sections in resume
+};
+```
+
+## Available Methods
+
+### Personal Information
+
+<AccordionGroup>
+  <Accordion title="updatePersonalInfo">
+    Updates a specific field in the personal info section.
+    
+    **Signature:**
+    ```typescript
+    updatePersonalInfo(field: keyof PersonalInfo, value: string): void
+    ```
+    
+    **Example:**
+    ```typescript
+    updatePersonalInfo('email', 'john@example.com');
+    updatePersonalInfo('phone', '+1-234-567-8900');
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:78-83`
+  </Accordion>
+
+  <Accordion title="updateSummary">
+    Updates the professional summary text.
+    
+    **Signature:**
+    ```typescript
+    updateSummary(value: string): void
+    ```
+    
+    **Example:**
+    ```typescript
+    updateSummary('Experienced developer with 5 years in web development...');
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:85-87`
+  </Accordion>
+</AccordionGroup>
+
+### Experience Management
+
+<AccordionGroup>
+  <Accordion title="addExperience">
+    Adds a new blank experience entry with a generated UUID.
+    
+    **Signature:**
+    ```typescript
+    addExperience(): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:89-106`
+  </Accordion>
+
+  <Accordion title="updateExperience">
+    Updates a specific field in an experience entry.
+    
+    **Signature:**
+    ```typescript
+    updateExperience(id: string, field: keyof Experience, value: any): void
+    ```
+    
+    **Example:**
+    ```typescript
+    updateExperience('uuid-123', 'company', 'Acme Corp');
+    updateExperience('uuid-123', 'current', true);
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:108-113`
+  </Accordion>
+
+  <Accordion title="removeExperience">
+    Removes an experience entry by ID.
+    
+    **Signature:**
+    ```typescript
+    removeExperience(id: string): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:115-120`
+  </Accordion>
+</AccordionGroup>
+
+### Education Management
+
+<AccordionGroup>
+  <Accordion title="addEducation">
+    Adds a new blank education entry.
+    
+    **Signature:**
+    ```typescript
+    addEducation(): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:122-138`
+  </Accordion>
+
+  <Accordion title="updateEducation">
+    Updates a specific field in an education entry.
+    
+    **Signature:**
+    ```typescript
+    updateEducation(id: string, field: keyof Education, value: any): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:140-145`
+  </Accordion>
+
+  <Accordion title="removeEducation">
+    Removes an education entry by ID.
+    
+    **Signature:**
+    ```typescript
+    removeEducation(id: string): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:147-152`
+  </Accordion>
+</AccordionGroup>
+
+### Skills Management
+
+<AccordionGroup>
+  <Accordion title="addSkill">
+    Adds a new skill to the list. Ignores empty/whitespace-only names.
+    
+    **Signature:**
+    ```typescript
+    addSkill(skillName: string): void
+    ```
+    
+    **Example:**
+    ```typescript
+    addSkill('React');
+    addSkill('TypeScript');
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:154-160`
+  </Accordion>
+
+  <Accordion title="removeSkill">
+    Removes a skill by ID.
+    
+    **Signature:**
+    ```typescript
+    removeSkill(id: string): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:162-167`
+  </Accordion>
+</AccordionGroup>
+
+### Projects Management
+
+<AccordionGroup>
+  <Accordion title="addProject">
+    Adds a new blank project entry.
+    
+    **Signature:**
+    ```typescript
+    addProject(): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:169-184`
+  </Accordion>
+
+  <Accordion title="updateProject">
+    Updates a specific field in a project entry.
+    
+    **Signature:**
+    ```typescript
+    updateProject(id: string, field: keyof Project, value: any): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:186-191`
+  </Accordion>
+
+  <Accordion title="removeProject">
+    Removes a project entry by ID.
+    
+    **Signature:**
+    ```typescript
+    removeProject(id: string): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:193-198`
+  </Accordion>
+</AccordionGroup>
+
+### Custom Sections Management
+
+<AccordionGroup>
+  <Accordion title="addCustomSection">
+    Creates a new custom section with the given title.
+    
+    **Signature:**
+    ```typescript
+    addCustomSection(title: string): void
+    ```
+    
+    **Example:**
+    ```typescript
+    addCustomSection('Certifications');
+    addCustomSection('Publications');
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:200-212`
+  </Accordion>
+
+  <Accordion title="updateCustomSection">
+    Updates the title of a custom section.
+    
+    **Signature:**
+    ```typescript
+    updateCustomSection(id: string, title: string): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:214-221`
+  </Accordion>
+
+  <Accordion title="removeCustomSection">
+    Removes a custom section by ID.
+    
+    **Signature:**
+    ```typescript
+    removeCustomSection(id: string): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:223-228`
+  </Accordion>
+
+  <Accordion title="addCustomSectionItem">
+    Adds a new item to a specific custom section.
+    
+    **Signature:**
+    ```typescript
+    addCustomSectionItem(sectionId: string): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:230-252`
+  </Accordion>
+
+  <Accordion title="updateCustomSectionItem">
+    Updates a field in a custom section item.
+    
+    **Signature:**
+    ```typescript
+    updateCustomSectionItem(
+      sectionId: string,
+      itemId: string,
+      field: keyof CustomSectionItem,
+      value: string
+    ): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:254-273`
+  </Accordion>
+
+  <Accordion title="removeCustomSectionItem">
+    Removes an item from a custom section.
+    
+    **Signature:**
+    ```typescript
+    removeCustomSectionItem(sectionId: string, itemId: string): void
+    ```
+    
+    **Implementation:** `src/hooks/useResume.tsx:275-287`
+  </Accordion>
+</AccordionGroup>
+
+### Section Ordering
+
+<Accordion title="reorderSections">
+  Updates the order in which sections appear in the resume.
+  
+  **Signature:**
+  ```typescript
+  reorderSections(newOrder: SectionId[]): void
+  ```
+  
+  **Example:**
+  ```typescript
+  reorderSections([
+    'personal-info',
+    'summary',
+    'skills',        // Skills moved up
+    'experience',
+    'education',
+    'projects',
+    'customSections'
+  ]);
+  ```
+  
+  **Implementation:** `src/hooks/useResume.tsx:289-294`
+</Accordion>
+
+## Template Selection
+
+The context also manages the selected resume template:
+
+```typescript
+const { selectedTemplate, setSelectedTemplate } = useResume();
+
+// Available templates: 'classic' | 'modern' | 'minimal'
+setSelectedTemplate('modern');
+```
+
+Template selection is automatically persisted to localStorage (see [Local Storage](/dev/state/local-storage)).

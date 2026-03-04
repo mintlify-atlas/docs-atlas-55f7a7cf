@@ -1,0 +1,170 @@
+---
+title: Skills & Projects
+description: Showcase your technical skills and highlight your best projects
+---
+
+The Skills and Projects sections help you demonstrate your technical capabilities and showcase your work.
+
+## Skills
+
+Add your technical skills, soft skills, and competencies to highlight your capabilities.
+
+### Adding Skills
+
+<Steps>
+  <Step title="Enter a Skill">
+    Type a skill name in the input field.
+    
+    **Examples:** React, TypeScript, Project Management, Python
+  </Step>
+  
+  <Step title="Click Add or Press Enter">
+    Submit the form by clicking the **Add** button or pressing Enter.
+    
+    The skill appears as a tag/badge in the skills list.
+  </Step>
+  
+  <Step title="Add More Skills">
+    Repeat the process to add all your relevant skills.
+    
+    The form clears automatically after each addition.
+  </Step>
+</Steps>
+
+### Skill Display
+
+Skills appear as rounded badges with an X button for removal. They use a flex-wrap layout that automatically adjusts to available space.
+
+### Removing Skills
+
+<Note>
+  Click the X icon on any skill badge to remove it. The skill will smoothly fade out with an animation.
+</Note>
+
+### Skills Data Structure
+
+```typescript
+type Skill = {
+  id: string;          // Auto-generated unique identifier
+  name: string;        // Skill name (e.g., "React", "TypeScript")
+  level?: string;      // Optional skill level (not currently used in UI)
+  category?: string;   // Optional category (not currently used in UI)
+};
+```
+
+<Tip>
+  While the `level` and `category` fields exist in the data structure, they are not currently exposed in the UI. The form focuses on skill names only for simplicity.
+</Tip>
+
+## Projects
+
+Showcase your personal projects, portfolio pieces, or significant work to demonstrate your practical skills.
+
+### Adding Projects
+
+<Steps>
+  <Step title="Click the Add Button">
+    Click the **Add** button in the Projects card header to create a new project entry.
+  </Step>
+  
+  <Step title="Enter Project Name">
+    Add a clear, descriptive name for your project.
+    
+    **Field:** `name` (string)
+    
+    **Example:** E-commerce Platform, Portfolio Website
+  </Step>
+  
+  <Step title="Add Project URLs">
+    Provide links to view your project.
+    
+    **Fields:**
+    - `githubUrl` (string): Link to source code repository
+    - `liveUrl` (string): Link to deployed/live version
+    
+    **Examples:**
+    - GitHub: https://github.com/username/project
+    - Live: https://myproject.com
+  </Step>
+  
+  <Step title="Describe the Project">
+    Explain what the project does and your role in building it.
+    
+    **Field:** `description` (string, multi-line)
+    
+    **Tip:** Include the technologies used and key features
+  </Step>
+</Steps>
+
+### Project Data Structure
+
+```typescript
+type Project = {
+  id: string;           // Auto-generated unique identifier
+  name: string;         // Project name
+  description: string;  // Project description
+  githubUrl: string;    // GitHub repository URL
+  liveUrl: string;      // Live demo URL
+  technologies: string[]; // Array of technologies (not exposed in current UI)
+};
+```
+
+<Note>
+  The `technologies` field exists in the type definition but is not currently used in the form. Technologies can be mentioned in the description field instead.
+</Note>
+
+### Managing Projects
+
+- **Remove:** Click the trash icon in the top-right corner of any project card
+- **Edit:** Click any field to update it - changes save automatically
+- **Empty State:** When no projects are added, a helpful message appears
+- **Animation:** Projects smoothly fade in when added and fade out when removed
+
+## Form Layout
+
+Both forms follow these design patterns:
+
+### Skills Form
+- Horizontal input with inline Add button
+- Skills display in a wrapped flex container
+- Each skill is a removable badge
+
+### Projects Form
+- Two-column grid for name and URLs
+- Full-width description textarea
+- Each project in a bordered, rounded container
+
+## Tips for Success
+
+<Tip>
+  **Skills:** List 8-12 relevant skills. Focus on skills mentioned in job descriptions you're targeting.
+</Tip>
+
+<Tip>
+  **Skills:** Group related skills mentally (e.g., add all programming languages, then frameworks, then tools).
+</Tip>
+
+<Tip>
+  **Projects:** Choose 2-4 of your best projects that demonstrate different skills or solve different problems.
+</Tip>
+
+<Tip>
+  **Projects:** Make sure your GitHub repositories are clean, have good README files, and your live demos are working before including URLs.
+</Tip>
+
+<Tip>
+  **Projects:** In the description, focus on the problem you solved, your approach, and the impact or results.
+</Tip>
+
+## Animation and UX
+
+Both sections use Framer Motion animations:
+
+- **Skills:** Scale and fade animations (0.8 to 1.0 scale)
+- **Projects:** Height and opacity animations for smooth card transitions
+- **Add Actions:** Forms submit with Enter key for keyboard efficiency
+- **Remove Actions:** Single-click removal with visual feedback
+
+<Note>
+  All animations respect user preferences for reduced motion where configured in the browser.
+</Note>

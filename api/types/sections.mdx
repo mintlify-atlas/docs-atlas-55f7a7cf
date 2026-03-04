@@ -1,0 +1,240 @@
+---
+title: 'Section Types'
+description: 'Type definitions for resume sections'
+---
+
+## Experience
+
+Represents a single work experience entry.
+
+```typescript
+export type Experience = {
+  id: string;
+  company: string;
+  position: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  description: string;
+};
+```
+
+### Fields
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the experience entry (generated with `crypto.randomUUID()`)
+</ResponseField>
+
+<ResponseField name="company" type="string" required>
+  Name of the company or organization
+</ResponseField>
+
+<ResponseField name="position" type="string" required>
+  Job title or role
+</ResponseField>
+
+<ResponseField name="location" type="string" required>
+  Geographic location of the position
+</ResponseField>
+
+<ResponseField name="startDate" type="string" required>
+  Start date of employment (typically formatted as MM/YYYY)
+</ResponseField>
+
+<ResponseField name="endDate" type="string" required>
+  End date of employment (typically formatted as MM/YYYY or "Present")
+</ResponseField>
+
+<ResponseField name="current" type="boolean" required>
+  Whether this is your current position
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Detailed description of responsibilities and achievements
+</ResponseField>
+
+## Education
+
+Represents a single education entry.
+
+```typescript
+export type Education = {
+  id: string;
+  school: string;
+  degree: string;
+  field: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+};
+```
+
+### Fields
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the education entry
+</ResponseField>
+
+<ResponseField name="school" type="string" required>
+  Name of the educational institution
+</ResponseField>
+
+<ResponseField name="degree" type="string" required>
+  Type of degree (e.g., "Bachelor of Science", "Master of Arts")
+</ResponseField>
+
+<ResponseField name="field" type="string" required>
+  Field of study or major
+</ResponseField>
+
+<ResponseField name="startDate" type="string" required>
+  Year started (typically formatted as YYYY)
+</ResponseField>
+
+<ResponseField name="endDate" type="string" required>
+  Year completed or expected completion (typically formatted as YYYY)
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Additional details like relevant coursework, honors, GPA, etc.
+</ResponseField>
+
+## Skill
+
+Represents a single skill.
+
+```typescript
+export type Skill = {
+  id: string;
+  name: string;
+  level?: string;
+  category?: string;
+};
+```
+
+### Fields
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the skill
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Name of the skill (e.g., "React", "Python", "Project Management")
+</ResponseField>
+
+<ResponseField name="level" type="string">
+  Proficiency level (e.g., "Beginner", "Intermediate", "Expert")
+</ResponseField>
+
+<ResponseField name="category" type="string">
+  Skill category for grouping (e.g., "Frontend", "Backend", "Tools")
+</ResponseField>
+
+## Project
+
+Represents a single project entry.
+
+```typescript
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+  githubUrl: string;
+  liveUrl: string;
+  technologies: string[];
+};
+```
+
+### Fields
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the project
+</ResponseField>
+
+<ResponseField name="name" type="string" required>
+  Name of the project
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Detailed description of the project and your role
+</ResponseField>
+
+<ResponseField name="githubUrl" type="string" required>
+  URL to the project's GitHub repository
+</ResponseField>
+
+<ResponseField name="liveUrl" type="string" required>
+  URL to the live deployment or demo
+</ResponseField>
+
+<ResponseField name="technologies" type="string[]" required>
+  Array of technologies used in the project
+</ResponseField>
+
+## CustomSection
+
+Represents a custom section you can add to your resume.
+
+```typescript
+export type CustomSection = {
+  id: string;
+  title: string;
+  items: CustomSectionItem[];
+};
+```
+
+### Fields
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the custom section
+</ResponseField>
+
+<ResponseField name="title" type="string" required>
+  Title of the custom section (e.g., "Certifications", "Publications")
+</ResponseField>
+
+<ResponseField name="items" type="CustomSectionItem[]" required>
+  Array of items in this custom section
+</ResponseField>
+
+## CustomSectionItem
+
+Represents a single item within a custom section.
+
+```typescript
+export type CustomSectionItem = {
+  id: string;
+  title: string;
+  subtitle: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+};
+```
+
+### Fields
+
+<ResponseField name="id" type="string" required>
+  Unique identifier for the item
+</ResponseField>
+
+<ResponseField name="title" type="string" required>
+  Main title of the item (e.g., certification name, publication title)
+</ResponseField>
+
+<ResponseField name="subtitle" type="string" required>
+  Secondary information (e.g., issuing organization, publisher)
+</ResponseField>
+
+<ResponseField name="startDate" type="string" required>
+  Start date or issue date
+</ResponseField>
+
+<ResponseField name="endDate" type="string" required>
+  End date or expiration date
+</ResponseField>
+
+<ResponseField name="description" type="string" required>
+  Additional details about the item
+</ResponseField>

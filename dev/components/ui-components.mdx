@@ -1,0 +1,429 @@
+---
+title: UI Components
+description: Reusable UI component library
+---
+
+The Resume Builder uses a custom UI component library built with vanilla CSS and CSS variables. All components support theming and follow consistent design patterns.
+
+## Button
+
+A versatile button component with multiple variants and sizes.
+
+**Location**: `src/components/ui/Button.tsx:12`
+
+### Props
+
+<ParamField path="variant" type="string" default="primary">
+  Button style variant
+  
+  **Options**:
+  - `primary`: Blue background, white text
+  - `secondary`: Surface background with border
+  - `danger`: Red background, white text
+  - `ghost`: Transparent with hover effect
+</ParamField>
+
+<ParamField path="size" type="string" default="md">
+  Button size
+  
+  **Options**:
+  - `sm`: 2rem height, 0.75rem padding, 0.75rem font
+  - `md`: 2.5rem height, 1rem padding, 0.875rem font
+  - `lg`: 3rem height, 2rem padding, 1rem font
+</ParamField>
+
+<ParamField path="isLoading" type="boolean" default="false">
+  Shows a loading spinner and disables the button
+</ParamField>
+
+<ParamField path="icon" type="React.ReactNode">
+  Icon element to display before button text (typically from Lucide)
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Disables the button and reduces opacity
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Button content (text or elements)
+</ParamField>
+
+### Usage Examples
+
+**Primary Button**:
+```tsx
+import { Button } from './components/ui/Button';
+import { Plus } from 'lucide-react';
+
+<Button variant="primary" size="md" icon={<Plus size={16} />}>
+  Add Item
+</Button>
+```
+
+**Ghost Button with Loading**:
+```tsx
+<Button variant="ghost" size="sm" isLoading>
+  Saving...
+</Button>
+```
+
+**Danger Button**:
+```tsx
+import { Trash2 } from 'lucide-react';
+
+<Button variant="danger" size="sm" icon={<Trash2 size={14} />}>
+  Delete
+</Button>
+```
+
+### Styling Details
+
+The Button component uses inline styles with CSS variables for theming:
+
+```tsx
+const style: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 'var(--radius-md)',
+  fontWeight: 500,
+  transition: 'background-color 0.2s, color 0.2s',
+  // Variant-specific styles
+  backgroundColor: 'var(--color-primary)', // for primary variant
+  color: 'white',
+};
+```
+
+**Hover States**:
+Buttons use `onMouseEnter` and `onMouseLeave` handlers to apply hover effects dynamically:
+
+```tsx
+onMouseEnter={(e) => {
+  if (variant === 'primary') 
+    e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
+}}
+```
+
+## Card
+
+A container component with optional title and action area.
+
+**Location**: `src/components/ui/Card.tsx:10`
+
+### Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  Card content
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS class names
+</ParamField>
+
+<ParamField path="title" type="string">
+  Card header title
+</ParamField>
+
+<ParamField path="action" type="React.ReactNode">
+  Action element displayed in header (typically a Button)
+</ParamField>
+
+### Usage Examples
+
+**Simple Card**:
+```tsx
+import { Card } from './components/ui/Card';
+
+<Card title="Personal Information">
+  <p>Card content goes here</p>
+</Card>
+```
+
+**Card with Action**:
+```tsx
+import { Card } from './components/ui/Card';
+import { Button } from './components/ui/Button';
+import { Plus } from 'lucide-react';
+
+<Card 
+  title="Experience"
+  action={
+    <Button size="sm" onClick={addExperience} icon={<Plus size={14} />}>
+      Add
+    </Button>
+  }
+>
+  {/* Experience entries */}
+</Card>
+```
+
+### Structure
+
+The Card component has two main sections:
+
+1. **Header** (optional): Displayed when `title` or `action` is provided
+   - Contains title and action element
+   - Has bottom border for separation
+   - Uses flexbox for space-between layout
+
+2. **Content**: Always rendered with consistent padding
+
+```tsx
+<div style={{ backgroundColor: 'var(--color-surface)', borderRadius: 'var(--radius-lg)' }}>
+  {(title || action) && (
+    <div style={{ borderBottom: '1px solid var(--color-border)' }}>
+      {title && <h3>{title}</h3>}
+      {action && <div>{action}</div>}
+    </div>
+  )}
+  <div style={{ padding: 'var(--spacing-md)' }}>
+    {children}
+  </div>
+</div>
+```
+
+## Input
+
+A text input component with label and error display.
+
+**Location**: `src/components/ui/Input.tsx:8`
+
+### Props
+
+<ParamField path="label" type="string">
+  Input label displayed above the field
+</ParamField>
+
+<ParamField path="error" type="string">
+  Error message displayed below the field in red
+</ParamField>
+
+<ParamField path="type" type="string" default="text">
+  HTML input type (text, email, tel, etc.)
+</ParamField>
+
+<ParamField path="value" type="string">
+  Controlled input value
+</ParamField>
+
+<ParamField path="onChange" type="function">
+  Change handler function
+</ParamField>
+
+<ParamField path="placeholder" type="string">
+  Placeholder text
+</ParamField>
+
+<ParamField path="disabled" type="boolean">
+  Disables the input
+</ParamField>
+
+### Usage Example
+
+```tsx
+import { Input } from './components/ui/Input';
+
+<Input
+  label="Full Name"
+  value={fullName}
+  onChange={(e) => setFullName(e.target.value)}
+  placeholder="John Doe"
+  error={nameError}
+/>
+```
+
+### Focus State
+
+The Input component changes border color on focus:
+
+```tsx
+onFocus={(e) => e.currentTarget.style.borderColor = 'var(--color-primary)'}
+onBlur={(e) => e.currentTarget.style.borderColor = 'var(--color-border)'}
+```
+
+### Styling
+
+- Height: `2.5rem`
+- Border: `1px solid var(--color-border)`
+- Border radius: `var(--radius-md)`
+- Padding: `0 0.75rem`
+- Font size: `0.875rem`
+
+## TextArea
+
+A multi-line text input component with label and error display.
+
+**Location**: `src/components/ui/Input.tsx:48`
+
+### Props
+
+<ParamField path="label" type="string">
+  TextArea label displayed above the field
+</ParamField>
+
+<ParamField path="error" type="string">
+  Error message displayed below the field
+</ParamField>
+
+<ParamField path="value" type="string">
+  Controlled textarea value
+</ParamField>
+
+<ParamField path="onChange" type="function">
+  Change handler function
+</ParamField>
+
+<ParamField path="placeholder" type="string">
+  Placeholder text
+</ParamField>
+
+<ParamField path="rows" type="number">
+  Number of visible text lines
+</ParamField>
+
+### Usage Example
+
+```tsx
+import { TextArea } from './components/ui/Input';
+
+<TextArea
+  label="Description"
+  value={description}
+  onChange={(e) => setDescription(e.target.value)}
+  placeholder="• Led a team of..."
+/>
+```
+
+### Features
+
+- **Resizable**: Vertical resize enabled via CSS
+- **Min height**: `5rem` by default
+- **Font inheritance**: Uses `fontFamily: 'inherit'` for consistency
+- **Same focus behavior** as Input component
+
+## CSS Variables
+
+All UI components use CSS variables for theming. Here are the key variables:
+
+### Colors
+```css
+--color-primary: Main brand color
+--color-primary-hover: Hover state for primary
+--color-surface: Card/input background
+--color-surface-hover: Hover state for surface
+--color-border: Border color
+--color-text: Primary text color
+--color-text-muted: Secondary/muted text
+--color-danger: Error/danger color
+```
+
+### Spacing
+```css
+--spacing-sm: Small spacing (typically 0.5rem)
+--spacing-md: Medium spacing (typically 1rem)
+--spacing-lg: Large spacing (typically 1.5rem)
+```
+
+### Border Radius
+```css
+--radius-md: Medium radius (typically 0.375rem)
+--radius-lg: Large radius (typically 0.5rem)
+--radius-full: Fully rounded (9999px)
+```
+
+## Design Patterns
+
+### Controlled Components
+
+All form components are controlled:
+
+```tsx
+const [value, setValue] = useState('');
+
+<Input
+  value={value}
+  onChange={(e) => setValue(e.target.value)}
+/>
+```
+
+### Forward Refs
+
+Button, Input, and TextArea use `React.forwardRef` to allow ref access:
+
+```tsx
+const inputRef = useRef<HTMLInputElement>(null);
+
+<Input ref={inputRef} />
+
+// Later:
+inputRef.current?.focus();
+```
+
+### Icon Integration
+
+Components integrate with Lucide React icons:
+
+```tsx
+import { Mail, Phone, Plus, Trash2, Loader2 } from 'lucide-react';
+
+<Button icon={<Plus size={16} />}>Add</Button>
+```
+
+### Inline Styles
+
+Components use inline styles with CSS variables rather than CSS modules or styled-components. This approach:
+- Provides full control over dynamic styling
+- Maintains theme consistency via CSS variables
+- Avoids CSS-in-JS runtime overhead
+- Keeps component logic and styles co-located
+
+### Hover State Management
+
+Components manage hover states via event handlers rather than CSS pseudoclasses for more control:
+
+```tsx
+onMouseEnter={(e) => {
+  e.currentTarget.style.backgroundColor = 'var(--color-surface-hover)';
+}}
+onMouseLeave={(e) => {
+  e.currentTarget.style.backgroundColor = 'var(--color-surface)';
+}}
+```
+
+## Accessibility
+
+### ARIA Labels
+
+Buttons with only icons should include `aria-label`:
+
+```tsx
+<Button
+  variant="ghost"
+  size="sm"
+  icon={<Trash2 size={14} />}
+  aria-label="Remove item"
+/>
+```
+
+### Form Labels
+
+All Input and TextArea components support labels for screen readers:
+
+```tsx
+<Input label="Email Address" type="email" />
+```
+
+### Keyboard Navigation
+
+All interactive components support standard keyboard navigation (Tab, Enter, Space) through native HTML elements.
+
+## Future Enhancements
+
+Potential improvements to the UI component library:
+
+1. **Select/Dropdown component**: For template selection and other options
+2. **Checkbox/Radio components**: Styled form controls
+3. **Modal/Dialog component**: For confirmations and complex forms
+4. **Toast/Notification system**: User feedback for actions
+5. **Tooltip component**: Contextual help and information
+6. **Form validation**: Integration with validation libraries

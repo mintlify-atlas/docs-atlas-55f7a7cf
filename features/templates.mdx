@@ -1,0 +1,215 @@
+---
+title: "Templates"
+description: "Choose from three professional resume templates with distinct layouts and typography"
+---
+
+## Overview
+
+Resume Builder includes three professionally designed templates, each optimized for different preferences and industries. All templates are defined as JSON configurations that control layout, typography, colors, and spacing.
+
+## Available Templates
+
+<CardGroup cols={3}>
+  <Card title="Classic" icon="file-lines">
+    Traditional, professional resume layout suitable for all industries
+  </Card>
+  <Card title="Modern" icon="grid-2">
+    Contemporary two-column layout with a vibrant sidebar
+  </Card>
+  <Card title="Minimal" icon="minus">
+    Clean, centered single-column layout with elegant typography
+  </Card>
+</CardGroup>
+
+## Template Characteristics
+
+### Classic Template
+
+The Classic template (`~/workspace/source/src/templates/classic.json:1`) offers a timeless, single-column design that works well across all industries.
+
+**Layout:**
+- Single-column layout
+- Centered personal information header
+- Traditional section ordering
+
+**Typography:**
+- Font family: Merriweather (serif)
+- Base size: 11pt
+- Line height: 1.6
+
+**Color Scheme:**
+```json
+{
+  "primary": "#2c3e50",
+  "background": "#ffffff",
+  "text": "#333333",
+  "textMuted": "#666666"
+}
+```
+
+**Spacing:**
+- Section gap: 1.5rem
+- Page padding: 2.5cm
+
+### Modern Template
+
+The Modern template (`~/workspace/source/src/templates/modern.json:1`) features a two-column layout with a colored sidebar, perfect for creative and tech roles.
+
+**Layout:**
+- Two-column layout (35% / 65%)
+- Sidebar on the left
+- Personal info, skills, and education in sidebar
+- Summary, experience, and projects in main column
+
+**Typography:**
+- Font family: Inter (sans-serif)
+- Base size: 10pt
+- Line height: 1.5
+
+**Color Scheme:**
+```json
+{
+  "primary": "#2563eb",
+  "secondary": "#2563eb",
+  "background": "#ffffff",
+  "sidebarText": "#ffffff"
+}
+```
+
+**Layout Configuration:**
+```json
+{
+  "type": "two-column",
+  "columns": "35% 1fr",
+  "sidebarPosition": "left"
+}
+```
+
+### Minimal Template
+
+The Minimal template (`~/workspace/source/src/templates/minimal.json:1`) provides a clean, spacious design with elegant typography.
+
+**Layout:**
+- Single-column layout
+- Centered personal information
+- Generous spacing between sections
+
+**Typography:**
+- Font family: Inter, -apple-system (sans-serif)
+- Base size: 10pt
+- Line height: 1.6
+
+**Color Scheme:**
+```json
+{
+  "primary": "#000000",
+  "background": "#ffffff",
+  "text": "#2d2d2d"
+}
+```
+
+**Spacing:**
+- Section gap: 2.5rem
+- Item gap: 1.5rem
+- Page padding: 3rem 2.5rem
+
+## Template Structure
+
+Each template defines which sections appear and in what order. Here's the structure type definition from `~/workspace/source/src/types.ts:1`:
+
+```typescript
+export type ResumeTemplate = 'classic' | 'modern' | 'minimal';
+```
+
+Template configurations include:
+
+<CodeGroup>
+```json Classic Structure
+{
+  "structure": {
+    "main": [
+      "personal-info",
+      "summary",
+      "experience",
+      "education",
+      "skills",
+      "projects",
+      "customSections"
+    ]
+  }
+}
+```
+
+```json Modern Structure
+{
+  "structure": {
+    "sidebar": [
+      "personal-info",
+      "skills",
+      "education"
+    ],
+    "main": [
+      "summary",
+      "experience",
+      "projects",
+      "customSections"
+    ]
+  }
+}
+```
+</CodeGroup>
+
+## Switching Templates
+
+You can switch templates using the Template Selector component (`~/workspace/source/src/components/TemplateSelector.tsx:15`):
+
+```typescript
+const { selectedTemplate, setSelectedTemplate } = useResume();
+
+// Switch to a different template
+setSelectedTemplate('modern');
+```
+
+The template selector displays all three built-in templates with preview images and descriptions. When you select a template:
+
+1. The preview updates in real-time
+2. Your data remains unchanged
+3. The selection is saved to localStorage
+4. A checkmark indicates the active template
+
+<Frame>
+  <img src="/images/template-selector.png" alt="Template selector UI" />
+</Frame>
+
+## Template Persistence
+
+Your selected template is automatically saved to localStorage (`~/workspace/source/src/hooks/useResume.tsx:56`):
+
+```typescript
+const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>(() => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem('resume-builder-template');
+    if (saved && ['classic', 'modern', 'minimal'].includes(saved)) {
+      return saved as ResumeTemplate;
+    }
+  }
+  return 'classic';
+});
+```
+
+<Note>
+  Template changes are saved automatically and persist across browser sessions.
+</Note>
+
+## Custom Templates
+
+The app also supports AI-generated custom templates through the Template Generator component. Custom templates:
+
+- Are stored separately from built-in templates
+- Can be deleted by users
+- Support the same configuration options
+- Appear in a separate "Custom Templates" section
+
+<Tip>
+  Click the "Generate with AI" button in the template selector to create custom templates based on your preferences.
+</Tip>

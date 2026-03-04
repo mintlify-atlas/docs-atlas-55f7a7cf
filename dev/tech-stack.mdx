@@ -1,0 +1,337 @@
+---
+title: 'Tech Stack'
+description: 'Explore the technologies and libraries used in Resume Builder'
+---
+
+## Overview
+
+Resume Builder is built with modern, production-ready technologies focused on developer experience, performance, and type safety.
+
+## Core Framework
+
+### TanStack Start
+
+**Version**: ^1.132.0
+
+[TanStack Start](https://tanstack.com/start) is a full-stack React framework that provides:
+
+- File-based routing
+- Server-side rendering (SSR) support
+- Optimized build pipeline
+- Seamless integration with TanStack ecosystem
+
+You use TanStack Start for the application foundation, though the Resume Builder primarily runs as a client-side application.
+
+### TanStack Router
+
+**Version**: ^1.132.0
+
+[TanStack Router](https://tanstack.com/router) provides type-safe routing with:
+
+- Automatic route tree generation via `@tanstack/router-plugin`
+- File-based route definitions in `src/routes/`
+- Built-in DevTools for debugging
+- Nested layouts and route components
+
+```typescript
+// Router configuration at src/router.tsx:7
+export const getRouter = () => {
+  const router = createRouter({
+    routeTree,
+    scrollRestoration: true,
+    defaultPreloadStaleTime: 0,
+  })
+  return router
+}
+```
+
+<Info>
+The router automatically generates `src/routeTree.gen.ts` from your route files during development.
+</Info>
+
+## UI Layer
+
+### React 19
+
+**Version**: ^19.2.0
+
+The latest version of React with:
+
+- Improved concurrent rendering
+- Enhanced hooks API
+- Better TypeScript support
+- React Compiler optimizations
+
+You leverage React's Context API for state management through the custom `useResume` hook.
+
+### Framer Motion
+
+**Version**: ^12.23.24
+
+[Framer Motion](https://www.framer.com/motion/) powers animations and transitions:
+
+- Smooth UI transitions
+- Drag-and-drop interactions
+- Spring-based animations
+- Gesture handling
+
+Used primarily for visual polish and micro-interactions throughout the application.
+
+### Lucide React
+
+**Version**: ^0.544.0
+
+[Lucide](https://lucide.dev) provides a comprehensive icon library:
+
+- Tree-shakeable icons
+- Consistent design system
+- TypeScript definitions
+- Customizable size and styling
+
+Examples: `Printer`, `Eye`, `X` icons used in the main interface.
+
+## Drag and Drop
+
+### @dnd-kit
+
+**Versions**:
+- `@dnd-kit/core`: ^6.3.1
+- `@dnd-kit/sortable`: ^10.0.0
+- `@dnd-kit/utilities`: ^3.2.2
+
+[dnd-kit](https://dndkit.com) is a modern drag-and-drop toolkit for React:
+
+- Accessible by default
+- Keyboard navigation support
+- Touch-friendly
+- Performant
+
+You use it in `SectionOrderEditor` to enable resume section reordering.
+
+<Tip>
+dnd-kit is modular—the application only imports `core`, `sortable`, and `utilities` packages for optimal bundle size.
+</Tip>
+
+## AI Integration
+
+### Google Generative AI
+
+**Version**: ^0.24.1
+
+[Google's Generative AI SDK](https://ai.google.dev) enables AI-powered features:
+
+- Content generation assistance
+- Resume text suggestions
+- Template recommendations
+
+Integrated for enhanced user experience with AI capabilities.
+
+## Styling
+
+### Tailwind CSS
+
+**Version**: ^4.0.6
+
+Tailwind CSS provides utility-first styling:
+
+- Rapid UI development
+- Consistent design tokens
+- Automatic purging of unused styles
+- JIT (Just-In-Time) compilation
+
+The application uses the Tailwind Vite plugin (`@tailwindcss/vite`) for seamless integration.
+
+### Utility Libraries
+
+**clsx** (^2.1.1): Conditional class name composition
+
+```typescript
+import { clsx } from 'clsx';
+
+const className = clsx(
+  'base-class',
+  isActive && 'active-class'
+);
+```
+
+**tailwind-merge** (^3.4.0): Intelligent Tailwind class merging
+
+```typescript
+import { twMerge } from 'tailwind-merge';
+
+// Automatically resolves conflicts
+const className = twMerge('px-2 py-1', 'px-4');
+// Result: 'py-1 px-4'
+```
+
+## Build Tools
+
+### Vite
+
+**Version**: ^7.1.7
+
+[Vite](https://vite.dev) is the build tool and dev server:
+
+- Lightning-fast hot module replacement (HMR)
+- Optimized production builds
+- Native ESM support
+- Plugin ecosystem
+
+Configuration includes:
+- `@vitejs/plugin-react`: React support with Fast Refresh
+- `vite-tsconfig-paths`: TypeScript path mapping
+- `@tailwindcss/vite`: Tailwind integration
+
+### TypeScript
+
+**Version**: ^5.7.2
+
+TypeScript provides static type checking:
+
+- Catch errors before runtime
+- Enhanced IDE support
+- Self-documenting code
+- Refactoring confidence
+
+All source files use `.tsx` or `.ts` extensions with strict type checking enabled.
+
+## Development Tools
+
+### TanStack DevTools
+
+**Versions**:
+- `@tanstack/react-devtools`: ^0.7.0
+- `@tanstack/react-router-devtools`: ^1.132.0
+- `@tanstack/devtools-vite`: ^0.3.11
+
+DevTools provide development-time debugging:
+
+- Router state inspection
+- Route tree visualization
+- Component hierarchy
+- Performance monitoring
+
+Enabled in development mode via `src/routes/__root.tsx:53`.
+
+## Testing
+
+### Vitest
+
+**Version**: ^3.0.5
+
+[Vitest](https://vitest.dev) is the testing framework:
+
+- Vite-native test runner
+- Jest-compatible API
+- Fast execution
+- TypeScript support
+
+### Testing Library
+
+**Versions**:
+- `@testing-library/react`: ^16.2.0
+- `@testing-library/dom`: ^10.4.0
+
+Testing utilities for React components:
+
+- User-centric testing
+- Accessibility-focused
+- Integration testing
+
+### jsdom
+
+**Version**: ^27.0.0
+
+DOM implementation for Node.js environments, enabling component testing without a browser.
+
+## Performance Monitoring
+
+### Web Vitals
+
+**Version**: ^5.1.0
+
+[web-vitals](https://github.com/GoogleChrome/web-vitals) measures Core Web Vitals:
+
+- Largest Contentful Paint (LCP)
+- First Input Delay (FID)
+- Cumulative Layout Shift (CLS)
+- First Contentful Paint (FCP)
+- Time to First Byte (TTFB)
+
+Helps monitor and optimize user experience metrics.
+
+## Runtime
+
+### Nitro
+
+**Version**: latest
+
+[Nitro](https://nitro.unjs.io) is the server engine:
+
+- Universal deployment
+- Edge runtime support
+- Static site generation
+- API routes (if needed)
+
+Provides flexibility for various deployment targets including Cloudflare Workers, Vercel, Netlify, and static hosting.
+
+## Dependency Overview
+
+<AccordionGroup>
+  <Accordion title="Production Dependencies (13)">
+    - `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities`
+    - `@google/generative-ai`
+    - `@tailwindcss/vite`, `tailwindcss`, `tailwind-merge`
+    - `@tanstack/react-devtools`, `@tanstack/react-router`, `@tanstack/react-router-devtools`, `@tanstack/react-router-ssr-query`, `@tanstack/react-start`, `@tanstack/router-plugin`
+    - `clsx`
+    - `framer-motion`
+    - `lucide-react`
+    - `nitro`
+    - `react`, `react-dom`
+    - `vite-tsconfig-paths`
+  </Accordion>
+  
+  <Accordion title="Development Dependencies (10)">
+    - `@tanstack/devtools-vite`
+    - `@testing-library/dom`, `@testing-library/react`
+    - `@types/node`, `@types/react`, `@types/react-dom`
+    - `@vitejs/plugin-react`
+    - `jsdom`
+    - `typescript`
+    - `vite`
+    - `vitest`
+    - `web-vitals`
+  </Accordion>
+</AccordionGroup>
+
+## Scripts
+
+Available npm scripts from `package.json:6`:
+
+```bash
+# Development server on port 3000
+pnpm dev
+
+# Development with Wrangler (Cloudflare)
+pnpm dev:wrangler
+
+# Production build
+pnpm build
+
+# Preview production build
+pnpm preview
+
+# Run tests
+pnpm test
+```
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Architecture" icon="sitemap" href="/dev/architecture">
+    Understand the application architecture
+  </Card>
+  <Card title="Project Structure" icon="folder-tree" href="/dev/project-structure">
+    Navigate the codebase structure
+  </Card>
+</CardGroup>

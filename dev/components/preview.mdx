@@ -1,0 +1,342 @@
+---
+title: Preview Components
+description: Resume preview and rendering system
+---
+
+The preview system renders resume data using template configurations. It provides a real-time preview of how the resume will appear and supports multiple template layouts.
+
+## Preview Component
+
+The `Preview` component is the main entry point for resume rendering.
+
+**Location**: `src/components/Preview/Preview.tsx:9`
+
+**Functionality**:
+- Fetches selected template configuration
+- Supports both built-in and custom templates
+- Passes data to UniversalRenderer for rendering
+
+```tsx
+export const Preview = () => {
+  const { selectedTemplate, resumeData } = useResume();
+  const { getCustomTemplate } = useCustomTemplates();
+
+  const getConfig = (): TemplateConfig => {
+    // Check if it's a custom template
+    const customTemplate = getCustomTemplate(selectedTemplate);
+    if (customTemplate) {
+      return customTemplate;
+    }
+
+    // Fall back to built-in templates
+    switch (selectedTemplate) {
+      case 'modern':
+        return modernConfig as unknown as TemplateConfig;
+      case 'minimal':
+        return minimalConfig as unknown as TemplateConfig;
+      case 'classic':
+      default:
+        return classicConfig as unknown as TemplateConfig;
+    }
+  };
+
+  return <UniversalRenderer data={resumeData} config={getConfig()} />;
+};
+```
+
+**Template Configuration**:
+The Preview component loads template configuration from:
+- Custom templates (via `useCustomTemplates` hook)
+- Built-in templates (`classic.json`, `modern.json`, `minimal.json`)
+
+## UniversalRenderer
+
+The `UniversalRenderer` is the core rendering engine that applies template configurations.
+
+**Location**: `src/components/ResumeRenderer/UniversalRenderer.tsx:11`
+
+### Props
+
+<ParamField path="data" type="ResumeData" required>
+  Complete resume data object containing all sections
+</ParamField>
+
+<ParamField path="config" type="TemplateConfig" required>
+  Template configuration defining theme, layout, and section variants
+</ParamField>
+
+### Template Configuration Structure
+
+The `config` object contains:
+
+<ParamField path="theme" type="object">
+  Theme settings including colors, typography, and spacing
+  
+  **Nested properties**:
+  - `colors`: Primary, secondary, background, text, borders
+  - `typography`: Font family, base size, line height
+  - `spacing`: Section gap, item gap, page padding
+</ParamField>
+
+<ParamField path="layout" type="object">
+  Layout configuration for single or two-column designs
+  
+  **Properties**:
+  - `type`: "single-column" or "two-column"
+  - `columns`: Column width distribution (e.g., "30% 70%")
+  - `sidebarPosition`: "left" or "right"
+</ParamField>
+
+<ParamField path="structure" type="object">
+  Section organization
+  
+  **Properties**:
+  - `main`: Array of section IDs for main content area
+  - `sidebar`: Array of section IDs for sidebar (two-column only)
+</ParamField>
+
+<ParamField path="sectionVariants" type="object">
+  Variant styles for each section (e.g., "default", "minimal", "timeline", "compact")
+</ParamField>
+
+### CSS Variable Injection
+
+The UniversalRenderer injects theme values as CSS variables:
+
+```tsx
+const themeStyles = {
+  '--theme-color-primary': theme.colors.primary,
+  '--theme-color-secondary': theme.colors.secondary,
+  '--theme-color-background': theme.colors.background,
+  '--theme-color-text': theme.colors.text,
+  '--theme-color-text-muted': theme.colors.textMuted,
+  '--theme-color-border': theme.colors.border,
+  '--theme-color-sidebar-text': theme.colors.sidebarText || theme.colors.text,
+  
+  '--theme-font-family': theme.typography.fontFamily,
+  '--theme-heading-family': theme.typography.headingFamily || theme.typography.fontFamily,
+  '--theme-base-size': theme.typography.baseSize,
+  '--theme-line-height': theme.typography.lineHeight,
+  
+  '--theme-spacing-section': theme.spacing.sectionGap,
+  '--theme-spacing-item': theme.spacing.itemGap,
+  '--theme-page-padding': theme.spacing.pagePadding,
+} as React.CSSProperties;
+```
+
+### Layout Rendering
+
+**Single Column Layout**:
+```tsx
+<div style={containerStyle}>
+  {sectionOrder.map(renderSection)}
+</div>
+```
+
+**Two Column Layout** (src/components/ResumeRenderer/UniversalRenderer.tsx:67):
+```tsx
+<div style={{ display: 'flex' }}>
+  {layout.sidebarPosition === 'left' && (
+    <div style={{ width: sidebarWidth, backgroundColor: 'var(--theme-color-secondary)' }}>
+      {sidebarSections.map(renderSection)}
+    </div>
+  )}
+  
+  <div style={{ width: mainWidth }}>
+    {mainSections.map(renderSection)}
+  </div>
+
+  {layout.sidebarPosition === 'right' && (
+    <div style={{ width: sidebarWidth }}>
+      {sidebarSections.map(renderSection)}
+    </div>
+  )}
+</div>
+```
+
+### Section Order Logic
+
+The renderer respects user customization:
+```tsx
+const sectionOrder = data.sectionOrder && data.sectionOrder.length > 0 
+  ? data.sectionOrder 
+  : structure.main;
+```
+
+For two-column layouts, sections are split:
+- **Sidebar sections**: Defined in template configuration
+- **Main sections**: All sections not in sidebar, in user's preferred order
+
+## SectionRenderer
+
+The `SectionRenderer` component maps section IDs to their respective rendering components.
+
+**Location**: `src/components/ResumeRenderer/SectionRenderer.tsx:18`
+
+### Props
+
+<ParamField path="sectionId" type="SectionId" required>
+  Section identifier (e.g., "personal-info", "experience", "education")
+</ParamField>
+
+<ParamField path="data" type="ResumeData" required>
+  Complete resume data
+</ParamField>
+
+<ParamField path="variant" type="SectionVariant" required>
+  Visual variant for the section ("default", "minimal", "timeline", "compact", "centered")
+</ParamField>
+
+### Section Mapping
+
+The renderer uses a switch statement to map sections:
+
+```tsx
+switch (sectionId) {
+  case 'personal-info':
+    return <HeaderSection data={data.personalInfo} variant={variant} />;
+    
+  case 'summary':
+    return (
+      <div style={{ marginBottom: 'var(--theme-spacing-section)' }}>
+        <h3>Professional Summary</h3>
+        <p>{data.summary}</p>
+      </div>
+    );
+    
+  case 'experience':
+    return <ExperienceSection data={data.experience} variant={variant} />;
+    
+  case 'education':
+    return <EducationSection data={data.education} variant={variant} />;
+    
+  case 'skills':
+    return <SkillsSection data={data.skills} variant={variant} />;
+    
+  case 'projects':
+    return <ProjectsSection data={data.projects} variant={variant} />;
+    
+  case 'customSections':
+    return (
+      <>
+        {data.customSections.map((section) => (
+          <CustomSection key={section.id} section={section} variant={variant} />
+        ))}
+      </>
+    );
+    
+  default:
+    return null;
+}
+```
+
+## Section Components
+
+Each section has its own rendering component that accepts data and a variant.
+
+### HeaderSection
+
+**Location**: `src/components/ResumeRenderer/sections/HeaderSection.tsx:11`
+
+Renders personal information with contact details.
+
+**Variants**:
+- **centered**: Centers text and contact items
+- **minimal**: Removes bottom border
+- **default**: Left-aligned with border
+
+**Features**:
+- Responsive icon display using Lucide icons
+- Conditional rendering of contact items
+- Theme-aware styling via CSS variables
+
+### ExperienceSection
+
+**Location**: `src/components/ResumeRenderer/sections/ExperienceSection.tsx:10`
+
+Renders work experience entries.
+
+**Variants**:
+- **default**: Standard layout with company/position hierarchy
+- **minimal**: Compact single-line header
+- **compact**: Inline position/company/dates
+- **timeline**: Date column on the left
+
+**Example** (Timeline Variant):
+```tsx
+<div style={{ display: 'flex', flexDirection: 'row', gap: '1rem' }}>
+  <div style={{ minWidth: '120px' }}>
+    {exp.startDate} - {exp.endDate}
+  </div>
+  <div style={{ flex: 1 }}>
+    <h4>{exp.position}</h4>
+    <div>{exp.company} • {exp.location}</div>
+    <p>{exp.description}</p>
+  </div>
+</div>
+```
+
+### Other Section Components
+
+All section components follow a similar pattern:
+
+1. **Accept props**: Data array and variant
+2. **Return null if empty**: Graceful handling of missing data
+3. **Apply variant styles**: Different layouts based on variant
+4. **Use CSS variables**: Theme-aware styling
+
+Section components are located in `src/components/ResumeRenderer/sections/`:
+- `EducationSection.tsx`
+- `SkillsSection.tsx`
+- `ProjectsSection.tsx`
+- `CustomSection.tsx`
+
+## Preview/SectionRenderer
+
+There's also a simplified `SectionRenderer` in the Preview directory.
+
+**Location**: `src/components/Preview/SectionRenderer.tsx:8`
+
+This component maps section IDs to rendered output using a render function:
+
+```tsx
+interface SectionRendererProps {
+  resumeData: ResumeData;
+  renderSection: (sectionId: SectionId) => React.ReactNode;
+}
+
+export const SectionRenderer = ({ resumeData, renderSection }: SectionRendererProps) => {
+  return (
+    <>
+      {resumeData.sectionOrder.map((sectionId) => (
+        <div key={sectionId}>
+          {renderSection(sectionId)}
+        </div>
+      ))}
+    </>
+  );
+};
+```
+
+This is a helper component that iterates over the user's section order and calls a render function for each section.
+
+## Key Concepts
+
+### Theme System
+
+All preview components use CSS variables for theming, allowing templates to completely customize appearance without changing component code.
+
+### Variant System
+
+Each section can have different visual variants, controlled by the template configuration. This allows templates to apply different styles to different sections (e.g., timeline experience, minimal education).
+
+### Responsive Section Order
+
+The preview system respects user customization of section order while maintaining template structure for two-column layouts.
+
+### Print-Ready Output
+
+The preview uses standard A4 dimensions:
+- Width: `210mm`
+- Min Height: `297mm`
+- These dimensions ensure proper PDF export and printing

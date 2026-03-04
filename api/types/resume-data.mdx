@@ -1,0 +1,181 @@
+---
+title: 'ResumeData Types'
+description: 'Complete type reference for resume data structures'
+---
+
+## ResumeData
+
+The main type that represents all resume data in the application.
+
+```typescript
+export type ResumeData = {
+  personalInfo: PersonalInfo;
+  summary: string;
+  experience: Experience[];
+  education: Education[];
+  skills: Skill[];
+  projects: Project[];
+  customSections: CustomSection[];
+  sectionOrder: SectionId[];
+};
+```
+
+### Fields
+
+<ResponseField name="personalInfo" type="PersonalInfo" required>
+  Contact and identifying information for the resume header
+</ResponseField>
+
+<ResponseField name="summary" type="string" required>
+  Professional summary or objective statement
+</ResponseField>
+
+<ResponseField name="experience" type="Experience[]" required>
+  Array of work experience entries
+</ResponseField>
+
+<ResponseField name="education" type="Education[]" required>
+  Array of education entries
+</ResponseField>
+
+<ResponseField name="skills" type="Skill[]" required>
+  Array of skills
+</ResponseField>
+
+<ResponseField name="projects" type="Project[]" required>
+  Array of project entries
+</ResponseField>
+
+<ResponseField name="customSections" type="CustomSection[]" required>
+  Array of custom sections you can add to the resume
+</ResponseField>
+
+<ResponseField name="sectionOrder" type="SectionId[]" required>
+  Defines the order in which sections appear on the resume
+</ResponseField>
+
+## PersonalInfo
+
+Contains all personal and contact information displayed in the resume header.
+
+```typescript
+export type PersonalInfo = {
+  fullName: string;
+  email: string;
+  phone: string;
+  website: string;
+  linkedin: string;
+  github: string;
+  location: string;
+  jobTitle: string;
+};
+```
+
+### Fields
+
+<ResponseField name="fullName" type="string" required>
+  Your full name as it should appear on the resume
+</ResponseField>
+
+<ResponseField name="email" type="string" required>
+  Email address for contact
+</ResponseField>
+
+<ResponseField name="phone" type="string" required>
+  Phone number for contact
+</ResponseField>
+
+<ResponseField name="website" type="string" required>
+  Personal website URL
+</ResponseField>
+
+<ResponseField name="linkedin" type="string" required>
+  LinkedIn profile URL or username
+</ResponseField>
+
+<ResponseField name="github" type="string" required>
+  GitHub profile URL or username
+</ResponseField>
+
+<ResponseField name="location" type="string" required>
+  Current location (city, state/country)
+</ResponseField>
+
+<ResponseField name="jobTitle" type="string" required>
+  Current or desired job title
+</ResponseField>
+
+## ResumeTemplate
+
+Defines the available template styles for rendering the resume.
+
+```typescript
+export type ResumeTemplate = 'classic' | 'modern' | 'minimal';
+```
+
+### Values
+
+- `classic` - Traditional resume layout with serif fonts
+- `modern` - Contemporary design with accent colors
+- `minimal` - Clean, minimalist layout
+
+## SectionId
+
+Identifies the different sections that can appear on a resume.
+
+```typescript
+export type SectionId = 
+  | 'personal-info' 
+  | 'summary' 
+  | 'experience' 
+  | 'projects' 
+  | 'education' 
+  | 'skills' 
+  | 'customSections';
+```
+
+### Values
+
+- `personal-info` - Personal information header
+- `summary` - Professional summary section
+- `experience` - Work experience section
+- `projects` - Projects section
+- `education` - Education section
+- `skills` - Skills section
+- `customSections` - Custom sections you define
+
+## Default Values
+
+The application provides default initial values:
+
+```typescript
+export const initialResumeData: ResumeData = {
+  personalInfo: {
+    fullName: '',
+    email: '',
+    phone: '',
+    website: '',
+    linkedin: '',
+    github: '',
+    location: '',
+    jobTitle: '',
+  },
+  summary: '',
+  experience: [],
+  education: [],
+  skills: [],
+  projects: [],
+  customSections: [],
+  sectionOrder: defaultSectionOrder,
+};
+
+export const defaultSectionOrder: SectionId[] = [
+  'personal-info',
+  'summary',
+  'experience',
+  'projects',
+  'education',
+  'skills',
+  'customSections'
+];
+```

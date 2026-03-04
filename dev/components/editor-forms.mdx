@@ -1,0 +1,331 @@
+---
+title: Editor Forms
+description: Form components for editing resume data
+---
+
+The editor forms allow users to input and manage their resume data. Each form component is connected to the `useResume` hook for state management and provides an intuitive interface for data entry.
+
+## Form Components
+
+### PersonalInfoForm
+
+The `PersonalInfoForm` component collects basic contact and personal information.
+
+**Location**: `src/components/Editor/PersonalInfoForm.tsx:6`
+
+**Features**:
+- Two-column grid layout for efficient space usage
+- Integrated with `useResume` hook for state management
+- Real-time updates as you type
+- Placeholder text for guidance
+
+**Fields**:
+<ParamField path="fullName" type="string">
+  User's full name (e.g., "John Doe")
+</ParamField>
+
+<ParamField path="jobTitle" type="string">
+  Current or desired job title (e.g., "Software Engineer")
+</ParamField>
+
+<ParamField path="email" type="string">
+  Email address with email validation
+</ParamField>
+
+<ParamField path="phone" type="string">
+  Phone number with tel input type
+</ParamField>
+
+<ParamField path="location" type="string">
+  Current location (e.g., "New York, NY")
+</ParamField>
+
+<ParamField path="website" type="string">
+  Personal website URL
+</ParamField>
+
+<ParamField path="linkedin" type="string">
+  LinkedIn profile URL
+</ParamField>
+
+<ParamField path="github" type="string">
+  GitHub profile URL
+</ParamField>
+
+**Example Usage**:
+```tsx
+import { PersonalInfoForm } from './components/Editor/PersonalInfoForm';
+
+function Editor() {
+  return <PersonalInfoForm />;
+}
+```
+
+### ExperienceForm
+
+The `ExperienceForm` component manages work experience entries with add/remove functionality.
+
+**Location**: `src/components/Editor/ExperienceForm.tsx:9`
+
+**Features**:
+- Add multiple experience entries
+- Animated entry/exit transitions using Framer Motion
+- "Currently working here" checkbox that disables end date
+- Individual remove buttons for each entry
+- Empty state message when no entries exist
+
+**Entry Fields**:
+<ParamField path="company" type="string">
+  Company or organization name
+</ParamField>
+
+<ParamField path="position" type="string">
+  Job title or role
+</ParamField>
+
+<ParamField path="location" type="string">
+  Work location
+</ParamField>
+
+<ParamField path="startDate" type="string">
+  Start date (format: MM/YYYY)
+</ParamField>
+
+<ParamField path="endDate" type="string">
+  End date (format: MM/YYYY or "Present") - disabled when current is true
+</ParamField>
+
+<ParamField path="current" type="boolean">
+  Whether this is the current position
+</ParamField>
+
+<ParamField path="description" type="string">
+  Multi-line description of responsibilities and achievements
+</ParamField>
+
+**Integration with useResume**:
+```tsx
+const { resumeData, addExperience, updateExperience, removeExperience } = useResume();
+
+// Add new experience
+addExperience();
+
+// Update a field
+updateExperience(expId, 'company', 'Tech Corp');
+
+// Remove an entry
+removeExperience(expId);
+```
+
+### EducationForm
+
+The `EducationForm` component manages educational background entries.
+
+**Location**: `src/components/Editor/EducationForm.tsx:9`
+
+**Features**:
+- Similar structure to ExperienceForm
+- Animated transitions for adding/removing entries
+- Grid layout for organized input fields
+- Empty state when no education is added
+
+**Entry Fields**:
+<ParamField path="school" type="string">
+  Institution name
+</ParamField>
+
+<ParamField path="degree" type="string">
+  Degree type (e.g., "Bachelor of Science")
+</ParamField>
+
+<ParamField path="field" type="string">
+  Field of study (e.g., "Computer Science")
+</ParamField>
+
+<ParamField path="startDate" type="string">
+  Start year (format: YYYY)
+</ParamField>
+
+<ParamField path="endDate" type="string">
+  End year (format: YYYY)
+</ParamField>
+
+<ParamField path="description" type="string">
+  Additional details like coursework, honors, GPA
+</ParamField>
+
+### SkillsForm
+
+The `SkillsForm` component provides a tag-based interface for managing skills.
+
+**Location**: `src/components/Editor/SkillsForm.tsx:9`
+
+**Features**:
+- Form-based skill addition
+- Tag-style display with remove buttons
+- Animated skill badges using Framer Motion
+- Input clearing after adding a skill
+
+**Implementation Pattern**:
+```tsx
+const [newSkill, setNewSkill] = useState('');
+
+const handleAddSkill = (e: React.FormEvent) => {
+  e.preventDefault();
+  if (newSkill.trim()) {
+    addSkill(newSkill.trim());
+    setNewSkill('');
+  }
+};
+```
+
+**Skills Data Structure**:
+<ParamField path="id" type="string">
+  Unique identifier (generated with crypto.randomUUID())
+</ParamField>
+
+<ParamField path="name" type="string">
+  Skill name (e.g., "React", "TypeScript")
+</ParamField>
+
+### ProjectsForm
+
+The `ProjectsForm` component manages personal or professional project entries.
+
+**Location**: `src/components/Editor/ProjectsForm.tsx:9`
+
+**Entry Fields**:
+<ParamField path="name" type="string">
+  Project name
+</ParamField>
+
+<ParamField path="githubUrl" type="string">
+  GitHub repository URL
+</ParamField>
+
+<ParamField path="liveUrl" type="string">
+  Live demo or production URL
+</ParamField>
+
+<ParamField path="description" type="string">
+  Project description and key features
+</ParamField>
+
+### CustomSectionForm
+
+The `CustomSectionForm` component allows users to create custom resume sections.
+
+**Location**: `src/components/Editor/CustomSectionForm.tsx:9`
+
+**Features**:
+- Two-level management: sections and items within sections
+- Add custom section titles (e.g., "Volunteer", "Awards")
+- Each section can have multiple items
+- Remove entire sections or individual items
+
+**Section Structure**:
+<ParamField path="id" type="string">
+  Section unique identifier
+</ParamField>
+
+<ParamField path="title" type="string">
+  Section title displayed in the resume
+</ParamField>
+
+<ParamField path="items" type="array">
+  Array of custom section items
+</ParamField>
+
+**Item Fields**:
+<ParamField path="title" type="string">
+  Item title (e.g., role or award name)
+</ParamField>
+
+<ParamField path="subtitle" type="string">
+  Item subtitle (e.g., organization or issuer)
+</ParamField>
+
+<ParamField path="startDate" type="string">
+  Start date (format: MM/YYYY)
+</ParamField>
+
+<ParamField path="endDate" type="string">
+  End date (format: MM/YYYY)
+</ParamField>
+
+<ParamField path="description" type="string">
+  Item description
+</ParamField>
+
+**Usage Example**:
+```tsx
+const { 
+  addCustomSection, 
+  removeCustomSection,
+  addCustomSectionItem,
+  updateCustomSectionItem,
+  removeCustomSectionItem 
+} = useResume();
+
+// Create a new section
+addCustomSection('Awards');
+
+// Add an item to the section
+addCustomSectionItem(sectionId);
+
+// Update an item field
+updateCustomSectionItem(sectionId, itemId, 'title', 'Best Developer Award');
+```
+
+## Common Form Patterns
+
+### State Management Integration
+
+All form components follow a consistent pattern for state management:
+
+1. **Extract data from context**: `const { resumeData, ...methods } = useResume()`
+2. **Render input fields**: Connected to resume data via `value` prop
+3. **Handle changes**: Call update methods from `useResume` hook
+4. **Local state**: Only used for temporary input (like `newSkill` in SkillsForm)
+
+### Animation Pattern
+
+Forms with multiple entries use Framer Motion for smooth transitions:
+
+```tsx
+import { motion, AnimatePresence } from 'framer-motion';
+
+<AnimatePresence>
+  {items.map((item) => (
+    <motion.div
+      key={item.id}
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      style={{ overflow: 'hidden' }}
+    >
+      {/* Item content */}
+    </motion.div>
+  ))}
+</AnimatePresence>
+```
+
+### Component Composition
+
+Forms are composed using the UI component library:
+
+- **Card**: Container with optional title and action buttons
+- **Input**: Text input fields with labels
+- **TextArea**: Multi-line text input
+- **Button**: Action buttons with icons and variants
+
+See the [UI Components](/dev/components/ui-components) page for detailed component documentation.
+
+## Form Validation
+
+Currently, forms rely on:
+- HTML5 input types (`email`, `tel`) for basic validation
+- Trim operations to prevent empty entries
+- Disabled states for conditional fields (like end date when current job)
+
+Future enhancements may include more comprehensive validation using a library like Zod or Yup.

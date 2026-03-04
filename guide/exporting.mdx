@@ -1,0 +1,328 @@
+---
+title: Exporting Your Resume
+description: Learn how to export your resume as PDF and backup your data as JSON
+---
+
+The Resume Builder provides two export options: PDF export for sharing your resume, and JSON export for backing up and transferring your data.
+
+## PDF Export
+
+Export your resume as a professional PDF document ready to submit to employers.
+
+### How to Export PDF
+
+<Steps>
+  <Step title="Click Export PDF">
+    In the header area, click the **Export PDF** button (marked with a printer icon).
+    
+    This triggers the browser's print dialog.
+  </Step>
+  
+  <Step title="Configure Print Settings">
+    In the print dialog:
+    
+    - **Destination:** Select "Save as PDF"
+    - **Layout:** Portrait orientation (recommended)
+    - **Margins:** Default or None
+    - **Background graphics:** Enabled (if available)
+  </Step>
+  
+  <Step title="Save Your PDF">
+    Click **Save** to download your resume as a PDF file.
+    
+    The file is ready to attach to job applications.
+  </Step>
+</Steps>
+
+### How PDF Export Works
+
+The application uses the browser's native print functionality:
+
+```typescript
+const handlePrint = () => {
+  window.print();
+};
+```
+
+When you click Export PDF, the app:
+
+1. Calls `window.print()` to open the browser's print dialog
+2. Hides UI elements marked with the `no-print` class
+3. Shows print-optimized content in the `print-only` container
+4. Renders a full-size version of your resume optimized for printing
+
+### Print-Specific Styling
+
+The application uses CSS classes to control what appears in the PDF:
+
+<Note>
+  - **`.no-print`** - Elements hidden in print view (buttons, editor interface)
+  - **`.print-only`** - Elements only shown when printing (full-size resume)
+</Note>
+
+Key areas hidden from print:
+- Header with export buttons
+- Editor panels and forms
+- Desktop and mobile preview containers
+- Mobile preview toggle button
+
+### PDF Quality Tips
+
+<Tip>
+  For best results, use Chrome or Edge browsers. They provide the most consistent PDF rendering.
+</Tip>
+
+<Tip>
+  Enable "Background graphics" in print settings to ensure colors and styling appear in your PDF.
+</Tip>
+
+<Tip>
+  Preview your PDF before saving. Click "Preview" in the print dialog to see exactly how it will look.
+</Tip>
+
+<Tip>
+  If margins look wrong, try changing them to "None" or "Default" in the print settings.
+</Tip>
+
+## JSON Export (Data Backup)
+
+Export your resume data as a JSON file for backup, version control, or transferring between devices.
+
+### How to Export JSON
+
+<Steps>
+  <Step title="Click Export Data">
+    In the header area, click the **Export Data** button (marked with a download icon).
+    
+    The export process starts immediately.
+  </Step>
+  
+  <Step title="Save the File">
+    Your browser downloads a JSON file automatically.
+    
+    **Filename format:** `resume-YYYY-MM-DD.json`
+    
+    **Example:** `resume-2024-03-15.json`
+  </Step>
+  
+  <Step title="Store Safely">
+    Keep your JSON file in a safe location:
+    
+    - Cloud storage (Google Drive, Dropbox)
+    - Version control (GitHub private repo)
+    - Local backup folder
+  </Step>
+</Steps>
+
+### How JSON Export Works
+
+The export button creates a downloadable JSON file:
+
+```typescript
+const handleExport = () => {
+  // Convert resume data to formatted JSON
+  const dataStr = JSON.stringify(resumeData, null, 2);
+  
+  // Create a blob from the JSON string
+  const dataBlob = new Blob([dataStr], { type: 'application/json' });
+  
+  // Create a download URL
+  const url = URL.createObjectURL(dataBlob);
+  
+  // Create and trigger download link
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `resume-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(link);
+  link.click();
+  
+  // Cleanup
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+```
+
+### Exported Data Structure
+
+The JSON file contains all your resume data:
+
+```json
+{
+  "personalInfo": {
+    "fullName": "John Doe",
+    "email": "john@example.com",
+    // ... other personal info fields
+  },
+  "summary": "Experienced software engineer...",
+  "experience": [
+    {
+      "id": "exp-1",
+      "company": "TechCorp",
+      // ... experience fields
+    }
+  ],
+  "education": [ /* ... */ ],
+  "skills": [ /* ... */ ],
+  "projects": [ /* ... */ ],
+  "customSections": [ /* ... */ ],
+  "sectionOrder": [
+    "personal-info",
+    "summary",
+    "experience",
+    // ... other sections
+  ]
+}
+```
+
+## Importing JSON Data
+
+Restore your resume from a previously exported JSON file.
+
+### How to Import JSON
+
+<Steps>
+  <Step title="Click Import Data">
+    In the header area, click the **Import Data** button (marked with an upload icon).
+    
+    A file picker dialog opens.
+  </Step>
+  
+  <Step title="Select Your JSON File">
+    Choose a previously exported `.json` file from your computer.
+    
+    Only `.json` files are accepted.
+  </Step>
+  
+  <Step title="Confirm Import">
+    The app validates the file and imports your data.
+    
+    You'll see a success message: "Resume data imported successfully!"
+    
+    If the file is invalid, you'll see: "Failed to import resume data. Please check the file format."
+  </Step>
+</Steps>
+
+### How JSON Import Works
+
+The import button reads and validates the uploaded file:
+
+```typescript
+const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const content = e.target?.result as string;
+      const data = JSON.parse(content) as ResumeData;
+      
+      // Basic validation
+      if (!data.personalInfo || !data.experience || !data.education) {
+        throw new Error('Invalid resume data format');
+      }
+      
+      // Data migration for older formats
+      if (data.sectionOrder && !data.sectionOrder.includes('personal-info')) {
+        data.sectionOrder = ['personal-info', ...data.sectionOrder];
+      }
+      
+      setResumeData(data);
+      setError(null);
+      alert('Resume data imported successfully!');
+    } catch (err) {
+      setError('Failed to import: Invalid JSON format');
+      console.error('Import error:', err);
+      alert('Failed to import resume data. Please check the file format.');
+    }
+  };
+  reader.readAsText(file);
+  
+  // Reset file input for re-import
+  if (fileInputRef.current) {
+    fileInputRef.current.value = '';
+  }
+};
+```
+
+### Import Validation
+
+The import process includes validation:
+
+1. **JSON Parsing:** Verifies the file contains valid JSON
+2. **Structure Check:** Ensures required fields exist (`personalInfo`, `experience`, `education`)
+3. **Data Migration:** Updates old data formats to current schema
+4. **Error Handling:** Shows clear error messages if import fails
+
+<Note>
+  Importing data **replaces** your current resume entirely. Export your current data first if you want to keep it.
+</Note>
+
+## Use Cases
+
+### Regular Backups
+
+<Tip>
+  Export your resume data weekly or after major updates. Store exports in cloud storage for safekeeping.
+</Tip>
+
+### Version Control
+
+<Tip>
+  Create different versions of your resume for different roles. Export each as a separate JSON file (e.g., `resume-frontend-2024.json`, `resume-fullstack-2024.json`).
+</Tip>
+
+### Device Transfer
+
+<Tip>
+  Export on one device and import on another to continue working on your resume seamlessly.
+</Tip>
+
+### Collaboration
+
+<Tip>
+  Share your JSON file with a mentor or career counselor. They can import it, make suggestions, and send it back.
+</Tip>
+
+### Data Recovery
+
+<Tip>
+  If you clear your browser data or switch browsers, import your previous export to restore your resume.
+</Tip>
+
+## Best Practices
+
+1. **Export Regularly:** Create backups before major changes
+2. **Descriptive Names:** Rename exported files with meaningful names
+3. **Multiple Versions:** Keep different resume versions for different job types
+4. **Test PDFs:** Always preview your PDF before submitting to employers
+5. **Safe Storage:** Store JSON backups in secure, redundant locations
+6. **Version Dates:** Include dates in filenames for easy tracking
+
+## Troubleshooting
+
+### PDF Issues
+
+**Problem:** PDF looks different from preview
+- **Solution:** Try a different browser (Chrome/Edge recommended)
+- **Solution:** Enable "Background graphics" in print settings
+
+**Problem:** Content is cut off
+- **Solution:** Adjust margins in print dialog
+- **Solution:** Check for long unbreakable text (URLs, etc.)
+
+### JSON Import Issues
+
+**Problem:** "Invalid resume data format" error
+- **Solution:** Verify the JSON file is from Resume Builder
+- **Solution:** Check that the file isn't corrupted
+- **Solution:** Try exporting fresh data and importing again
+
+**Problem:** Import doesn't work
+- **Solution:** Ensure you're selecting a `.json` file
+- **Solution:** Check browser console for specific error messages
+- **Solution:** Try opening the JSON file in a text editor to verify it's valid JSON
+
+<Note>
+  Data is stored in your browser's local storage. Clearing browser data will delete your resume. Always keep JSON backups!
+</Note>

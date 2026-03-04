@@ -1,0 +1,143 @@
+---
+title: Introduction
+description: Build professional resumes in minutes with an interactive, mobile-first resume builder
+---
+
+## What is Resume Builder?
+
+Resume Builder is an interactive, web-based application that helps you create professional resumes quickly and easily. Built with modern web technologies, it provides a seamless editing experience with real-time preview and multiple professionally designed templates.
+
+<Info>
+  Resume Builder stores all your data locally in your browser using localStorage, ensuring your information stays private and secure.
+</Info>
+
+## Who is it for?
+
+Resume Builder is perfect for:
+
+- **Job seekers** who need to create or update their professional resume quickly
+- **Career changers** who want to experiment with different resume layouts
+- **Students and new graduates** building their first professional resume
+- **Professionals** who need to maintain multiple resume versions for different roles
+- **Developers** who want to customize and extend a modern resume builder
+
+## Key features
+
+### Comprehensive resume sections
+
+<CardGroup cols={2}>
+  <Card title="Personal information" icon="user">
+    Add contact details, job title, and professional links (LinkedIn, GitHub, portfolio)
+  </Card>
+  <Card title="Professional summary" icon="file-text">
+    Highlight your career overview and key qualifications
+  </Card>
+  <Card title="Work experience" icon="briefcase">
+    Add multiple positions with descriptions and date ranges
+  </Card>
+  <Card title="Education" icon="graduation-cap">
+    Showcase your academic background and qualifications
+  </Card>
+  <Card title="Skills" icon="star">
+    List your technical and soft skills
+  </Card>
+  <Card title="Projects" icon="code">
+    Highlight your portfolio and achievements with GitHub and live URLs
+  </Card>
+  <Card title="Custom sections" icon="plus">
+    Add any additional sections you need (Awards, Volunteering, Certifications, etc.)
+  </Card>
+  <Card title="Section reordering" icon="arrow-up-down">
+    Customize the order of resume sections to match your priorities
+  </Card>
+</CardGroup>
+
+### Multiple professional templates
+
+Choose from 3 carefully designed templates:
+
+<Accordion title="Classic">
+  A traditional professional resume with serif fonts (Merriweather). Features a single-column layout with centered headers, perfect for conservative industries and formal applications.
+</Accordion>
+
+<Accordion title="Modern">
+  A contemporary two-column design with a blue accent sidebar. Ideal for creative professionals and tech roles who want to stand out while maintaining professionalism.
+</Accordion>
+
+<Accordion title="Minimal">
+  A clean, spacious design with centered headers and plenty of whitespace. Perfect for those who prefer a minimalist aesthetic and want their content to speak for itself.
+</Accordion>
+
+### Smart editing features
+
+- **Live preview** - See changes in real-time as you type
+- **Auto-save** - Your data is automatically saved to browser localStorage
+- **PDF export** - One-click export using browser print functionality
+- **Data export/import** - Download your resume data as JSON for backup or sharing
+- **Dark mode UI** - Easy on the eyes while editing
+
+### Mobile-optimized experience
+
+<CardGroup cols={2}>
+  <Card title="Responsive design" icon="smartphone">
+    Fully responsive interface that works on all screen sizes
+  </Card>
+  <Card title="Mobile editor" icon="edit">
+    Optimized mobile interface with single-column layout
+  </Card>
+  <Card title="Floating preview" icon="eye">
+    Floating preview button for easy resume viewing on mobile
+  </Card>
+  <Card title="Full-screen modal" icon="maximize">
+    Touch-friendly full-screen preview modal
+  </Card>
+</CardGroup>
+
+## Tech stack
+
+Resume Builder is built with modern, performant web technologies:
+
+```json package.json
+{
+  "dependencies": {
+    "@tanstack/react-start": "^1.132.0",
+    "@tanstack/react-router": "^1.132.0",
+    "framer-motion": "^12.23.24",
+    "lucide-react": "^0.544.0",
+    "react": "^19.2.0"
+  }
+}
+```
+
+- **Framework:** [TanStack Start](https://tanstack.com/start) - Full-stack React framework
+- **Routing:** [TanStack Router](https://tanstack.com/router) - Type-safe routing
+- **Animations:** [Framer Motion](https://www.framer.com/motion/) - Smooth, production-ready animations
+- **Icons:** [Lucide React](https://lucide.dev/) - Beautiful, consistent icon set
+- **Styling:** Vanilla CSS with CSS variables for theming
+- **Build tool:** Vite - Fast, modern build tool
+- **Runtime:** Nitro - Universal JavaScript server
+
+## System requirements
+
+Before you get started, make sure you have:
+
+<CardGroup cols={2}>
+  <Card title="Node.js 20+" icon="nodejs">
+    Required for running the development server and build tools
+  </Card>
+  <Card title="pnpm (recommended)" icon="package">
+    Fast, disk space efficient package manager (npm also works)
+  </Card>
+</CardGroup>
+
+<Warning>
+  Resume Builder requires Node.js version 20 or higher. Check your version with `node --version`.
+</Warning>
+
+## Next steps
+
+Ready to build your resume? Follow our [quickstart guide](/quickstart) to get up and running in minutes.
+
+<Card title="Quickstart" icon="rocket" href="/quickstart">
+  Install and start building your resume in under 5 minutes
+</Card>

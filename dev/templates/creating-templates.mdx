@@ -1,0 +1,395 @@
+---
+title: Creating Custom Templates
+description: Guide to creating your own resume templates
+---
+
+This guide walks you through creating a custom resume template from scratch. You'll learn the template JSON schema, required fields, and best practices.
+
+## Quick Start
+
+To create a new template:
+
+<Steps>
+  <Step title="Create a JSON file">
+    Create a new file in `/src/templates/` with a descriptive name (e.g., `creative.json`)
+  </Step>
+  
+  <Step title="Define the template structure">
+    Add the required fields: `id`, `name`, `description`, `theme`, `layout`, `structure`, and `sectionVariants`
+  </Step>
+  
+  <Step title="Configure the theme">
+    Set up colors, typography, and spacing to match your design vision
+  </Step>
+  
+  <Step title="Test the template">
+    Load your template in the application and verify it renders correctly
+  </Step>
+</Steps>
+
+## Template JSON Schema
+
+Here's the TypeScript definition for a template configuration:
+
+```typescript /src/types/template.ts
+export type TemplateConfig = {
+  id: string;
+  name: string;
+  description: string;
+  theme: ThemeConfig;
+  layout: {
+    type: 'single-column' | 'two-column';
+    columns?: string;
+    sidebarPosition?: 'left' | 'right';
+  };
+  structure: {
+    sidebar?: SectionId[];
+    main: SectionId[];
+  };
+  sectionVariants: Record<SectionId, SectionVariant>;
+};
+```
+
+## Required Fields
+
+### Basic Information
+
+<ParamField path="id" type="string" required>
+  Unique identifier for the template (lowercase, kebab-case recommended)
+</ParamField>
+
+<ParamField path="name" type="string" required>
+  Display name shown in the UI
+</ParamField>
+
+<ParamField path="description" type="string" required>
+  Brief description of the template's style and use case
+</ParamField>
+
+### Theme Configuration
+
+The `theme` object defines all visual styling:
+
+```typescript /src/types/template.ts
+export type ThemeConfig = {
+  colors: {
+    primary: string;
+    secondary: string;
+    background: string;
+    text: string;
+    textMuted: string;
+    border: string;
+    sidebarText?: string;
+  };
+  typography: {
+    fontFamily: string;
+    headingFamily?: string;
+    baseSize: string;
+    lineHeight: string;
+  };
+  spacing: {
+    sectionGap: string;
+    itemGap: string;
+    pagePadding: string;
+  };
+};
+```
+
+<Accordion title="Color Guidelines">
+  - Use hex color codes (e.g., `"#2563eb"`)
+  - Ensure sufficient contrast between text and background (WCAG AA minimum)
+  - `primary` is typically used for headings and key highlights
+  - `textMuted` should be readable but less prominent than main text
+  - `sidebarText` is only needed for two-column layouts with colored sidebars
+</Accordion>
+
+<Accordion title="Typography Guidelines">
+  - Include fallback fonts (e.g., `"Inter, sans-serif"`)
+  - Common base sizes: `"10pt"` (compact), `"11pt"` (standard)
+  - Line height between `1.4` and `1.6` works well for most resumes
+  - Consider using the same font for body and headings for consistency
+</Accordion>
+
+<Accordion title="Spacing Guidelines">
+  - Use consistent units (rem or cm recommended)
+  - Typical section gaps: `"1.5rem"` to `"2.5rem"`
+  - Keep page padding generous enough for printing (minimum `"2rem"` or `"2cm"`)
+  - Ensure spacing works well when printed on A4 or Letter paper
+</Accordion>
+
+### Layout Configuration
+
+Choose between single-column and two-column layouts:
+
+<CodeGroup>
+```json Single Column
+{
+  "layout": {
+    "type": "single-column"
+  },
+  "structure": {
+    "main": [
+      "personal-info",
+      "summary",
+      "experience",
+      "projects",
+      "education",
+      "skills",
+      "customSections"
+    ]
+  }
+}
+```
+
+```json Two Column
+{
+  "layout": {
+    "type": "two-column",
+    "columns": "35% 1fr",
+    "sidebarPosition": "left"
+  },
+  "structure": {
+    "sidebar": [
+      "personal-info",
+      "skills",
+      "education"
+    ],
+    "main": [
+      "summary",
+      "experience",
+      "projects",
+      "customSections"
+    ]
+  }
+}
+```
+</CodeGroup>
+
+<Note>
+For two-column layouts, the `columns` field uses CSS grid syntax. A 35/65 split (`"35% 1fr"`) or 30/70 split (`"30% 70%"`) works well for most resumes.
+</Note>
+
+### Section IDs
+
+All sections must use these predefined IDs:
+
+```typescript /src/types.ts
+export type SectionId = 
+  | 'personal-info'
+  | 'summary'
+  | 'experience'
+  | 'projects'
+  | 'education'
+  | 'skills'
+  | 'customSections';
+```
+
+Every section ID must appear exactly once in either `structure.main` or `structure.sidebar`.
+
+## Section Variants
+
+Section variants control how each section is visually rendered:
+
+```typescript /src/types/template.ts
+export type SectionVariant = 
+  | 'default' 
+  | 'centered' 
+  | 'minimal' 
+  | 'timeline' 
+  | 'grid' 
+  | 'tags' 
+  | 'bubbles' 
+  | 'bullet-list'
+  | 'sidebar'
+  | 'compact';
+```
+
+### Variant Usage Recommendations
+
+<AccordionGroup>
+  <Accordion title="personal-info">
+    - `centered` - Center-aligned name and contact info (common for single-column)
+    - `default` - Left-aligned layout (common for two-column)
+  </Accordion>
+  
+  <Accordion title="summary">
+    - `default` - Standard paragraph format
+    - `minimal` - Reduced visual weight
+  </Accordion>
+  
+  <Accordion title="experience">
+    - `default` - Full-featured with company, position, dates, and description
+    - `minimal` - Simplified layout with less spacing
+    - `timeline` - Visual timeline representation
+  </Accordion>
+  
+  <Accordion title="education">
+    - `default` - Standard layout with school, degree, and dates
+    - `minimal` - Compact format
+  </Accordion>
+  
+  <Accordion title="skills">
+    - `bullet-list` - Simple bulleted list
+    - `tags` - Tag/badge style
+    - `sidebar` - Optimized for sidebar display
+    - `grid` - Multi-column grid layout
+  </Accordion>
+  
+  <Accordion title="projects">
+    - `default` - Full project cards with description and links
+    - `compact` - Condensed format
+  </Accordion>
+  
+  <Accordion title="customSections">
+    - `default` - Standard section formatting
+  </Accordion>
+</AccordionGroup>
+
+## Complete Example Template
+
+Here's a complete example of a custom "Creative" template:
+
+```json /src/templates/creative.json
+{
+  "id": "creative",
+  "name": "Creative",
+  "description": "A bold, colorful template for creative professionals.",
+  "theme": {
+    "colors": {
+      "primary": "#8b5cf6",
+      "secondary": "#f3f4f6",
+      "background": "#ffffff",
+      "text": "#1f2937",
+      "textMuted": "#6b7280",
+      "border": "#e5e7eb",
+      "sidebarText": "#ffffff"
+    },
+    "typography": {
+      "fontFamily": "Inter, -apple-system, sans-serif",
+      "headingFamily": "Inter, -apple-system, sans-serif",
+      "baseSize": "10pt",
+      "lineHeight": "1.5"
+    },
+    "spacing": {
+      "sectionGap": "2rem",
+      "itemGap": "1.25rem",
+      "pagePadding": "2rem"
+    }
+  },
+  "layout": {
+    "type": "two-column",
+    "columns": "30% 1fr",
+    "sidebarPosition": "left"
+  },
+  "structure": {
+    "sidebar": [
+      "personal-info",
+      "skills",
+      "education"
+    ],
+    "main": [
+      "summary",
+      "experience",
+      "projects",
+      "customSections"
+    ]
+  },
+  "sectionVariants": {
+    "personal-info": "default",
+    "summary": "default",
+    "experience": "default",
+    "education": "minimal",
+    "skills": "tags",
+    "projects": "default",
+    "customSections": "default"
+  }
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Design for Print" icon="print">
+    Test your template with actual printing. Ensure margins are adequate and colors print well in grayscale.
+  </Card>
+  
+  <Card title="Maintain Readability" icon="glasses">
+    Use readable font sizes (minimum 10pt) and sufficient contrast ratios for accessibility.
+  </Card>
+  
+  <Card title="Be Consistent" icon="arrows-repeat">
+    Use spacing and styling consistently throughout the template for a professional appearance.
+  </Card>
+  
+  <Card title="Consider Content Length" icon="text-size">
+    Design layouts that work well with varying amounts of content in each section.
+  </Card>
+</CardGroup>
+
+### Testing Checklist
+
+<Steps>
+  <Step title="Visual rendering">
+    Verify the template renders correctly in the preview
+  </Step>
+  
+  <Step title="All sections">
+    Test with content in every section type
+  </Step>
+  
+  <Step title="Varying content lengths">
+    Check with minimal content and maximum content
+  </Step>
+  
+  <Step title="PDF export">
+    Generate a PDF and verify formatting is preserved
+  </Step>
+  
+  <Step title="Print test">
+    Print the PDF on actual paper to check margins and colors
+  </Step>
+</Steps>
+
+<Warning>
+Always include all seven section IDs in your `sectionVariants` object, even if some sections won't typically contain content. This prevents rendering errors.
+</Warning>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Template not appearing in the UI">
+    - Verify the JSON file is in `/src/templates/`
+    - Check that the JSON syntax is valid (no trailing commas, proper quotes)
+    - Ensure the template ID matches the filename
+    - Restart the development server
+  </Accordion>
+  
+  <Accordion title="Sections not rendering correctly">
+    - Verify all section IDs are spelled correctly
+    - Ensure each section appears exactly once in `structure`
+    - Check that all section IDs have a corresponding entry in `sectionVariants`
+  </Accordion>
+  
+  <Accordion title="Spacing issues">
+    - Use consistent units throughout (don't mix rem, px, and cm)
+    - Test with different content lengths
+    - Check that `pagePadding` provides enough margin for printing
+  </Accordion>
+  
+  <Accordion title="Colors not displaying">
+    - Ensure hex codes include the `#` symbol
+    - Verify color values are valid hex codes
+    - Check that there's sufficient contrast for readability
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Template Overview" icon="book" href="/dev/templates/overview">
+    Learn more about how the template system works
+  </Card>
+  <Card title="Resume Renderer" icon="code" href="/dev/components/resume-renderer">
+    Understand how templates are rendered
+  </Card>
+</CardGroup>

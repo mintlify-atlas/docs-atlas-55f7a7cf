@@ -1,0 +1,368 @@
+---
+title: "Resume Sections"
+description: "All available resume sections, their data structures, and auto-save functionality"
+---
+
+## Overview
+
+Resume Builder supports seven standard sections plus unlimited custom sections. All sections feature auto-save functionality that persists data to localStorage.
+
+## Available Sections
+
+### Personal Information
+
+The personal information section (`~/workspace/source/src/components/Editor/PersonalInfoForm.tsx:6`) captures your core contact details and professional identity.
+
+**Fields:**
+- Full Name
+- Job Title
+- Email
+- Phone
+- Location
+- Website
+- LinkedIn
+- GitHub
+
+**Data Structure:**
+
+```typescript
+export type PersonalInfo = {
+  fullName: string;
+  email: string;
+  phone: string;
+  website: string;
+  linkedin: string;
+  github: string;
+  location: string;
+  jobTitle: string;
+};
+```
+
+Source: `~/workspace/source/src/types.ts:3`
+
+### Professional Summary
+
+A brief text area for your professional summary or objective statement.
+
+```typescript
+// Simple string value stored in resume data
+summary: string;
+```
+
+**Usage:**
+```typescript
+const { resumeData, updateSummary } = useResume();
+
+updateSummary('Experienced software engineer with 5+ years...');
+```
+
+Source: `~/workspace/source/src/hooks/useResume.tsx:85`
+
+### Experience
+
+Work experience entries with support for multiple positions.
+
+**Data Structure:**
+
+```typescript
+export type Experience = {
+  id: string;
+  company: string;
+  position: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  description: string;
+};
+```
+
+Source: `~/workspace/source/src/types.ts:14`
+
+**Operations:**
+
+<CodeGroup>
+```typescript Add Experience
+const { addExperience } = useResume();
+
+// Creates new experience with unique ID
+addExperience();
+```
+
+```typescript Update Experience
+const { updateExperience } = useResume();
+
+updateExperience(
+  'experience-id',
+  'company',
+  'Tech Corp'
+);
+```
+
+```typescript Remove Experience
+const { removeExperience } = useResume();
+
+removeExperience('experience-id');
+```
+</CodeGroup>
+
+Source: `~/workspace/source/src/hooks/useResume.tsx:89`
+
+### Education
+
+Education history with degree and field information.
+
+**Data Structure:**
+
+```typescript
+export type Education = {
+  id: string;
+  school: string;
+  degree: string;
+  field: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+};
+```
+
+Source: `~/workspace/source/src/types.ts:25`
+
+### Skills
+
+Skills list with optional categorization.
+
+**Data Structure:**
+
+```typescript
+export type Skill = {
+  id: string;
+  name: string;
+  level?: string;
+  category?: string;
+};
+```
+
+Source: `~/workspace/source/src/types.ts:35`
+
+**Adding Skills:**
+
+```typescript
+const { addSkill } = useResume();
+
+// Add a skill by name
+addSkill('React');
+addSkill('TypeScript');
+addSkill('Node.js');
+```
+
+Source: `~/workspace/source/src/hooks/useResume.tsx:154`
+
+### Projects
+
+Showcase your projects with links and technologies.
+
+**Data Structure:**
+
+```typescript
+export type Project = {
+  id: string;
+  name: string;
+  description: string;
+  githubUrl: string;
+  liveUrl: string;
+  technologies: string[];
+};
+```
+
+Source: `~/workspace/source/src/types.ts:42`
+
+### Custom Sections
+
+Create unlimited custom sections for certifications, awards, publications, or any other content.
+
+**Data Structure:**
+
+```typescript
+export type CustomSection = {
+  id: string;
+  title: string;
+  items: CustomSectionItem[];
+};
+
+export type CustomSectionItem = {
+  id: string;
+  title: string;
+  subtitle: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+};
+```
+
+Source: `~/workspace/source/src/types.ts:60`
+
+**Operations:**
+
+<CodeGroup>
+```typescript Add Section
+const { addCustomSection } = useResume();
+
+addCustomSection('Certifications');
+```
+
+```typescript Add Item to Section
+const { addCustomSectionItem } = useResume();
+
+addCustomSectionItem('section-id');
+```
+
+```typescript Update Item
+const { updateCustomSectionItem } = useResume();
+
+updateCustomSectionItem(
+  'section-id',
+  'item-id',
+  'title',
+  'AWS Certified Developer'
+);
+```
+</CodeGroup>
+
+Source: `~/workspace/source/src/hooks/useResume.tsx:200`
+
+## Section Ordering
+
+You can reorder sections using the Section Order Editor (`~/workspace/source/src/components/SectionOrderEditor.tsx:17`).
+
+**Section Types:**
+
+```typescript
+export type SectionId = 
+  | 'personal-info'
+  | 'summary'
+  | 'experience'
+  | 'projects'
+  | 'education'
+  | 'skills'
+  | 'customSections';
+```
+
+Source: `~/workspace/source/src/types.ts:66`
+
+**Default Order:**
+
+```typescript
+export const defaultSectionOrder: SectionId[] = [
+  'personal-info',
+  'summary',
+  'experience',
+  'projects',
+  'education',
+  'skills',
+  'customSections'
+];
+```
+
+Source: `~/workspace/source/src/types.ts:79`
+
+**Reordering Sections:**
+
+```typescript
+const { reorderSections } = useResume();
+
+const newOrder: SectionId[] = [
+  'personal-info',
+  'summary',
+  'skills',  // Moved up
+  'experience',
+  'projects',
+  'education',
+  'customSections'
+];
+
+reorderSections(newOrder);
+```
+
+Source: `~/workspace/source/src/hooks/useResume.tsx:289`
+
+<Frame>
+  <img src="/images/section-ordering.png" alt="Section order editor with up/down arrows" />
+</Frame>
+
+## Auto-Save Functionality
+
+All resume data is automatically saved to localStorage whenever changes are made. This happens through React effects in the `useResume` hook.
+
+**Implementation:**
+
+```typescript
+// Auto-save to localStorage on every data change
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+  }
+}, [resumeData]);
+```
+
+Source: `~/workspace/source/src/hooks/useResume.tsx:66`
+
+**Storage Key:**
+```typescript
+const STORAGE_KEY = 'resume-builder-data';
+```
+
+Source: `~/workspace/source/src/hooks/useResume.tsx:4`
+
+<Info>
+  Changes are saved automatically - you don't need to click a "Save" button. Your resume data persists even if you close the browser.
+</Info>
+
+## Complete Resume Data Structure
+
+```typescript
+export type ResumeData = {
+  personalInfo: PersonalInfo;
+  summary: string;
+  experience: Experience[];
+  education: Education[];
+  skills: Skill[];
+  projects: Project[];
+  customSections: CustomSection[];
+  sectionOrder: SectionId[];
+};
+```
+
+Source: `~/workspace/source/src/types.ts:68`
+
+## Initial State
+
+When you first use the app, it starts with empty data:
+
+```typescript
+export const initialResumeData: ResumeData = {
+  personalInfo: {
+    fullName: '',
+    email: '',
+    phone: '',
+    website: '',
+    linkedin: '',
+    github: '',
+    location: '',
+    jobTitle: '',
+  },
+  summary: '',
+  experience: [],
+  education: [],
+  skills: [],
+  projects: [],
+  customSections: [],
+  sectionOrder: defaultSectionOrder,
+};
+```
+
+Source: `~/workspace/source/src/types.ts:81`
+
+<Warning>
+  Data is stored in localStorage, which is specific to your browser and device. To transfer your resume to another device, use the Export/Import feature.
+</Warning>

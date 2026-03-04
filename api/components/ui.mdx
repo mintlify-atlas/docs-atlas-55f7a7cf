@@ -1,0 +1,355 @@
+---
+title: 'UI Components'
+description: 'API reference for base UI components'
+---
+
+## Button
+
+A versatile button component with multiple variants and sizes.
+
+```typescript
+import { Button } from './components/ui/Button';
+
+function MyComponent() {
+  return (
+    <Button variant="primary" onClick={handleClick}>
+      Click me
+    </Button>
+  );
+}
+```
+
+### Props
+
+Extends all standard HTML button attributes.
+
+<ParamField path="variant" type="'primary' | 'secondary' | 'danger' | 'ghost'" default="'primary'">
+  Visual style variant of the button
+  - `primary` - Blue background with white text
+  - `secondary` - Surface background with border
+  - `danger` - Red background for destructive actions
+  - `ghost` - Transparent background, shows background on hover
+</ParamField>
+
+<ParamField path="size" type="'sm' | 'md' | 'lg'" default="'md'">
+  Size of the button
+  - `sm` - 32px height, 12px horizontal padding, 12px font
+  - `md` - 40px height, 16px horizontal padding, 14px font
+  - `lg` - 48px height, 32px horizontal padding, 16px font
+</ParamField>
+
+<ParamField path="isLoading" type="boolean" default="false">
+  Shows a loading spinner and disables the button when true
+</ParamField>
+
+<ParamField path="icon" type="React.ReactNode">
+  Icon element to display before the button text (typically from lucide-react)
+</ParamField>
+
+<ParamField path="children" type="React.ReactNode">
+  Button content (text or other elements)
+</ParamField>
+
+### Examples
+
+```typescript
+// Primary button
+<Button variant="primary" onClick={handleSave}>
+  Save Changes
+</Button>
+
+// Button with icon
+<Button 
+  variant="secondary" 
+  icon={<Plus size={16} />}
+  onClick={handleAdd}
+>
+  Add Item
+</Button>
+
+// Small danger button
+<Button 
+  variant="danger" 
+  size="sm"
+  onClick={handleDelete}
+>
+  Delete
+</Button>
+
+// Loading state
+<Button isLoading={isSaving}>
+  {isSaving ? 'Saving...' : 'Save'}
+</Button>
+
+// Ghost button (minimal style)
+<Button 
+  variant="ghost" 
+  icon={<Trash2 size={14} />}
+  aria-label="Remove"
+/>
+```
+
+### Styling
+
+The button uses CSS custom properties for theming:
+- `--color-primary` - Primary button background
+- `--color-primary-hover` - Primary button hover state
+- `--color-surface` - Secondary button background
+- `--color-surface-hover` - Hover background for ghost/secondary
+- `--color-danger` - Danger button background
+- `--color-border` - Secondary button border
+- `--radius-md` - Border radius
+
+## Card
+
+A container component with optional title and action button.
+
+```typescript
+import { Card } from './components/ui/Card';
+
+function MyComponent() {
+  return (
+    <Card title="Settings">
+      {/* Card content */}
+    </Card>
+  );
+}
+```
+
+### Props
+
+<ParamField path="children" type="React.ReactNode" required>
+  Content to display inside the card
+</ParamField>
+
+<ParamField path="title" type="string">
+  Optional title displayed in the card header
+</ParamField>
+
+<ParamField path="action" type="React.ReactNode">
+  Optional action element (typically a button) displayed in the header
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS class names
+</ParamField>
+
+### Examples
+
+```typescript
+// Basic card with title
+<Card title="Personal Information">
+  <Input label="Name" />
+  <Input label="Email" />
+</Card>
+
+// Card with action button
+<Card 
+  title="Experience" 
+  action={
+    <Button size="sm" onClick={addExperience}>
+      Add
+    </Button>
+  }
+>
+  {/* Experience entries */}
+</Card>
+
+// Card without header
+<Card>
+  <p>Simple card content</p>
+</Card>
+```
+
+### Styling
+
+The card uses CSS custom properties:
+- `--color-surface` - Card background
+- `--color-border` - Card border and header divider
+- `--radius-lg` - Border radius
+- `--spacing-md` - Internal padding
+
+## Input
+
+A styled text input component with label and error support.
+
+```typescript
+import { Input } from './components/ui/Input';
+
+function MyComponent() {
+  const [value, setValue] = React.useState('');
+  
+  return (
+    <Input
+      label="Email"
+      type="email"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder="john@example.com"
+    />
+  );
+}
+```
+
+### Props
+
+Extends all standard HTML input attributes.
+
+<ParamField path="label" type="string">
+  Label text displayed above the input
+</ParamField>
+
+<ParamField path="error" type="string">
+  Error message displayed below the input in red
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS class names
+</ParamField>
+
+### Examples
+
+```typescript
+// Basic input with label
+<Input 
+  label="Full Name" 
+  value={name}
+  onChange={(e) => setName(e.target.value)}
+/>
+
+// Email input
+<Input 
+  label="Email"
+  type="email"
+  value={email}
+  onChange={(e) => setEmail(e.target.value)}
+  placeholder="you@example.com"
+/>
+
+// Input with error
+<Input 
+  label="Password"
+  type="password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  error={passwordError}
+/>
+
+// Disabled input
+<Input 
+  label="End Date"
+  value={endDate}
+  disabled={isCurrentPosition}
+/>
+```
+
+### Styling
+
+Inputs use CSS custom properties:
+- `--color-surface` - Input background
+- `--color-border` - Input border (changes to `--color-primary` on focus)
+- `--color-primary` - Border color when focused
+- `--color-text` - Input text color
+- `--color-text-muted` - Label color
+- `--color-danger` - Error text color
+- `--radius-md` - Border radius
+
+## TextArea
+
+A multi-line text input component with label and error support.
+
+```typescript
+import { TextArea } from './components/ui/Input';
+
+function MyComponent() {
+  const [value, setValue] = React.useState('');
+  
+  return (
+    <TextArea
+      label="Description"
+      value={value}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder="Enter description..."
+    />
+  );
+}
+```
+
+### Props
+
+Extends all standard HTML textarea attributes.
+
+<ParamField path="label" type="string">
+  Label text displayed above the textarea
+</ParamField>
+
+<ParamField path="error" type="string">
+  Error message displayed below the textarea in red
+</ParamField>
+
+<ParamField path="className" type="string">
+  Additional CSS class names
+</ParamField>
+
+### Examples
+
+```typescript
+// Basic textarea
+<TextArea 
+  label="Description" 
+  value={description}
+  onChange={(e) => setDescription(e.target.value)}
+  placeholder="• Led a team of..."
+/>
+
+// Textarea with custom rows
+<TextArea 
+  label="Summary" 
+  value={summary}
+  onChange={(e) => setSummary(e.target.value)}
+  rows={6}
+/>
+
+// Textarea with error
+<TextArea 
+  label="Bio" 
+  value={bio}
+  onChange={(e) => setBio(e.target.value)}
+  error="Bio must be at least 50 characters"
+/>
+```
+
+### Styling
+
+TextArea uses the same CSS custom properties as Input, with these differences:
+- Minimum height of 5rem (80px)
+- Vertical resize enabled
+- Inherits font family from parent
+- Uses padding instead of inline padding
+
+## CSS Custom Properties Reference
+
+All UI components rely on these CSS variables defined in your theme:
+
+```css
+:root {
+  /* Colors */
+  --color-primary: /* Primary brand color */
+  --color-primary-hover: /* Primary hover state */
+  --color-surface: /* Card/input backgrounds */
+  --color-surface-hover: /* Hover background */
+  --color-border: /* Borders */
+  --color-text: /* Primary text */
+  --color-text-muted: /* Secondary text */
+  --color-danger: /* Error/danger actions */
+  
+  /* Spacing */
+  --spacing-sm: /* Small spacing */
+  --spacing-md: /* Medium spacing */
+  --spacing-lg: /* Large spacing */
+  
+  /* Radii */
+  --radius-md: /* Medium border radius */
+  --radius-lg: /* Large border radius */
+}
+```

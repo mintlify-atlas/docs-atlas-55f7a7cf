@@ -1,0 +1,226 @@
+---
+title: 'Mobile Preview'
+description: 'Access and use the full-screen preview modal on mobile devices'
+icon: 'eye'
+---
+
+On mobile devices, Resume Builder provides a dedicated preview experience through a floating action button and full-screen modal, allowing you to review your resume without leaving the editing interface.
+
+## Floating Preview Button
+
+The mobile preview is accessed via a floating action button (FAB) that appears in the bottom-right corner of the screen on devices below 768px width.
+
+### Button Implementation
+
+```tsx
+<button
+  className="no-print mobile-preview-btn"
+  onClick={() => setShowMobilePreview(true)}
+  style={{
+    position: 'fixed',
+    bottom: 'var(--spacing-lg)',
+    right: 'var(--spacing-lg)',
+    backgroundColor: 'var(--color-primary)',
+    color: 'white',
+    border: 'none',
+    borderRadius: 'var(--radius-full)',
+    width: '3.5rem',
+    height: '3.5rem',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    boxShadow: 'var(--shadow-lg)',
+    zIndex: 1000,
+  }}
+>
+  <Eye size={24} />
+</button>
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:171-193`
+
+<Info>
+  The floating preview button is automatically hidden on desktop devices (768px and above) where a side-by-side preview is always visible.
+</Info>
+
+### Auto-Hide on Desktop
+
+The button is hidden on larger screens using a media query:
+
+```css
+@media (min-width: 768px) {
+  .mobile-preview-btn {
+    display: none !important;
+  }
+}
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:218-220`
+
+## Full-Screen Preview Modal
+
+When you tap the preview button, a full-screen modal appears with your resume rendered at full size.
+
+### Modal State Management
+
+The modal is controlled by React state:
+
+```tsx
+function Home() {
+  const { resumeData, updateSummary } = useResume();
+  const [showMobilePreview, setShowMobilePreview] = useState(false);
+  
+  // ...
+}
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:29-31`
+
+### Modal Structure
+
+The modal provides a dark overlay with the resume centered:
+
+```tsx
+{showMobilePreview && (
+  <div 
+    className="no-print"
+    style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0, 0, 0, 0.95)',
+      zIndex: 9999,
+      overflow: 'auto',
+      padding: 'var(--spacing-md)',
+    }}
+    onClick={() => setShowMobilePreview(false)}
+  >
+    {/* Close button and preview content */}
+  </div>
+)}
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:116-130`
+
+## Close Button
+
+A sticky close button appears at the top of the modal for easy dismissal:
+
+```tsx
+<div style={{ 
+  position: 'sticky',
+  top: 'var(--spacing-md)',
+  display: 'flex',
+  justifyContent: 'flex-end',
+  marginBottom: 'var(--spacing-md)',
+}}>
+  <button
+    onClick={() => setShowMobilePreview(false)}
+    style={{
+      backgroundColor: 'var(--color-surface)',
+      border: 'none',
+      borderRadius: 'var(--radius-full)',
+      width: '3rem',
+      height: '3rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      cursor: 'pointer',
+      color: 'var(--color-text)',
+    }}
+  >
+    <X size={24} />
+  </button>
+</div>
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:132-156`
+
+<Tip>
+  You can also tap anywhere on the dark overlay (outside the resume) to close the preview modal.
+</Tip>
+
+## Preview Content
+
+The resume is rendered at its natural A4 size (210mm width) and centered in the modal:
+
+```tsx
+<div 
+  onClick={(e) => e.stopPropagation()}
+  style={{ 
+    width: '100%',
+    maxWidth: '210mm',
+    margin: '0 auto',
+  }}
+>
+  <Preview />
+</div>
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:157-166`
+
+<Note>
+  The `stopPropagation()` on the preview content prevents clicks inside the resume from closing the modal.
+</Note>
+
+## How to Use Mobile Preview
+
+<Steps>
+  <Step title="Edit Your Resume">
+    Make changes to any section of your resume using the mobile editing interface.
+  </Step>
+  
+  <Step title="Tap the Preview Button">
+    Tap the blue floating eye icon in the bottom-right corner of your screen.
+  </Step>
+  
+  <Step title="Review Your Resume">
+    Your resume appears in a full-screen modal at its actual print size. Scroll to review all sections.
+  </Step>
+  
+  <Step title="Close the Preview">
+    Tap the X button at the top or tap anywhere outside the resume to return to editing.
+  </Step>
+</Steps>
+
+## Desktop Preview Behavior
+
+On desktop devices (768px and wider), the preview is always visible alongside the editor:
+
+```tsx
+<div className="no-print desktop-preview" style={{ 
+  display: 'none',
+  position: 'sticky', 
+  top: 'var(--spacing-md)',
+  justifyContent: 'center'
+}}>
+  <div style={{ 
+    transform: 'scale(0.5)', 
+    transformOrigin: 'top center',
+    width: '210mm',
+    boxShadow: 'var(--shadow-xl)',
+  }}>
+    <Preview />
+  </div>
+</div>
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:93-107`
+
+The desktop preview:
+- Is hidden by default (`display: none`)
+- Becomes visible at 768px+ via media query
+- Sticks to the top as you scroll (`position: sticky`)
+- Scales to 50% on tablets, 60% on laptops, and 75% on large desktops
+
+<CardGroup cols={2}>
+  <Card title="Mobile Overview" icon="mobile" href="/mobile/overview">
+    Learn about mobile-first design principles
+  </Card>
+  <Card title="Export PDF" icon="file-pdf" href="/getting-started/export">
+    Export your resume from any device
+  </Card>
+</CardGroup>

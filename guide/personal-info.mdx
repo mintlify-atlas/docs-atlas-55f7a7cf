@@ -1,0 +1,119 @@
+---
+title: Personal Information
+description: Learn how to fill in your personal information and contact details
+---
+
+The Personal Information section is the foundation of your resume. It appears at the top of your resume and contains your contact details and professional identity.
+
+## Available Fields
+
+You can enter the following information in the Personal Information form:
+
+<Steps>
+  <Step title="Full Name">
+    Your complete name as you want it to appear on your resume.
+    
+    **Field:** `fullName` (string)
+    
+    **Example:** John Doe
+  </Step>
+  
+  <Step title="Job Title">
+    Your current professional title or the position you're targeting.
+    
+    **Field:** `jobTitle` (string)
+    
+    **Example:** Software Engineer
+  </Step>
+  
+  <Step title="Email Address">
+    Your professional email address.
+    
+    **Field:** `email` (string)
+    
+    **Type:** email input with validation
+    
+    **Example:** john@example.com
+  </Step>
+  
+  <Step title="Phone Number">
+    Your contact phone number.
+    
+    **Field:** `phone` (string)
+    
+    **Type:** tel input
+    
+    **Example:** +1 234 567 890
+  </Step>
+  
+  <Step title="Location">
+    Your city and state or region.
+    
+    **Field:** `location` (string)
+    
+    **Example:** New York, NY
+  </Step>
+  
+  <Step title="Website">
+    Your personal website or portfolio URL.
+    
+    **Field:** `website` (string)
+    
+    **Example:** johndoe.com
+  </Step>
+  
+  <Step title="LinkedIn Profile">
+    Your LinkedIn profile URL.
+    
+    **Field:** `linkedin` (string)
+    
+    **Example:** linkedin.com/in/johndoe
+  </Step>
+  
+  <Step title="GitHub Profile">
+    Your GitHub profile URL.
+    
+    **Field:** `github` (string)
+    
+    **Example:** github.com/johndoe
+  </Step>
+</Steps>
+
+## Form Layout
+
+The Personal Information form uses a two-column grid layout for efficient data entry. All fields update in real-time as you type, and changes are immediately reflected in the resume preview.
+
+<Note>
+  All fields are optional, but we recommend filling in at least your name, email, and job title for a complete resume.
+</Note>
+
+## Data Structure
+
+The personal information is stored using the `PersonalInfo` type:
+
+```typescript
+type PersonalInfo = {
+  fullName: string;
+  email: string;
+  phone: string;
+  website: string;
+  linkedin: string;
+  github: string;
+  location: string;
+  jobTitle: string;
+};
+```
+
+## Tips
+
+<Tip>
+  Use a professional email address that includes your name. Avoid using outdated or unprofessional email providers.
+</Tip>
+
+<Tip>
+  When entering URLs, you can include or omit the `https://` protocol - both formats work.
+</Tip>
+
+<Tip>
+  Keep your job title concise and clear. This helps recruiters quickly understand your professional focus.
+</Tip>

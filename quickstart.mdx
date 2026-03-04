@@ -1,80 +1,269 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quickstart
+description: Get Resume Builder up and running in minutes
 ---
 
-## Get started in three steps
+## Get started
 
-Get your documentation site running locally and make your first customization.
+This guide will help you install and run Resume Builder locally, then create your first professional resume.
 
-### Step 1: Set up your local environment
+<Steps>
+  <Step title="Clone the repository">
+    First, clone the Resume Builder repository to your local machine:
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    ```bash
+    git clone <your-repo-url>
+    cd resume_builder
+    ```
 
-### Step 2: Deploy your changes
+    <Note>
+      Replace `<your-repo-url>` with the actual URL of your Resume Builder repository.
+    </Note>
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+  <Step title="Install dependencies">
+    Install the required dependencies using pnpm (recommended) or npm:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    ```bash
+    pnpm install
+    ```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    Or with npm:
 
-### Step 3: Go live
+    ```bash
+    npm install
+    ```
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    <Tip>
+      pnpm is faster and more disk-efficient than npm. Install it globally with `npm install -g pnpm` if you haven't already.
+    </Tip>
+  </Step>
+
+  <Step title="Start the development server">
+    Launch the development server:
+
+    ```bash
+    pnpm dev
+    ```
+
+    The application will be available at `http://localhost:3000`.
+
+    <Info>
+      The dev server includes hot module replacement (HMR), so changes you make to the code will be reflected immediately in the browser.
+    </Info>
+  </Step>
+</Steps>
+
+## Build your first resume
+
+Now that Resume Builder is running, let's create your first resume.
+
+### Choose a template
+
+When you first open the app, you'll see the template selector at the top of the page. Resume Builder offers three professional templates:
+
+<CardGroup cols={3}>
+  <Card title="Classic" icon="file-text">
+    Traditional professional layout with serif fonts
+  </Card>
+  <Card title="Modern" icon="layout">
+    Two-column design with blue accent sidebar
+  </Card>
+  <Card title="Minimal" icon="minimize">
+    Clean, spacious design with centered headers
+  </Card>
+</CardGroup>
+
+Click on any template to select it. The preview will update instantly to show your chosen template.
+
+<Tip>
+  You can switch templates at any time. All your data is preserved when changing templates.
+</Tip>
+
+### Add your information
+
+Fill out your resume information section by section:
+
+<Steps>
+  <Step title="Personal information">
+    Start with the basics in the "Personal Information" card:
+
+    ```typescript src/types.ts
+    export type PersonalInfo = {
+      fullName: string;
+      email: string;
+      phone: string;
+      website: string;
+      linkedin: string;
+      github: string;
+      location: string;
+      jobTitle: string;
+    };
+    ```
+
+    Fill in your name, contact details, job title, and professional links (LinkedIn, GitHub, portfolio website).
+  </Step>
+
+  <Step title="Professional summary">
+    Write a brief overview of your professional background in the "Professional Summary" section. This should be 2-3 sentences highlighting your key qualifications and career goals.
+  </Step>
+
+  <Step title="Work experience">
+    Add your work history by clicking "Add Experience" in the "Work Experience" card:
+
+    ```typescript src/hooks/useResume.tsx
+    const addExperience = () => {
+      setResumeData((prev) => ({
+        ...prev,
+        experience: [
+          ...prev.experience,
+          {
+            id: crypto.randomUUID(),
+            company: '',
+            position: '',
+            location: '',
+            startDate: '',
+            endDate: '',
+            current: false,
+            description: '',
+          },
+        ],
+      }));
+    };
+    ```
+
+    For each position, include:
+    - Company name
+    - Position/title
+    - Location
+    - Start and end dates (or check "Current Position")
+    - Description of your responsibilities and achievements
+  </Step>
+
+  <Step title="Education, skills, and projects">
+    Continue filling out the remaining sections:
+
+    - **Education**: Add your degrees and certifications
+    - **Skills**: List your technical and soft skills
+    - **Projects**: Showcase your portfolio with GitHub and live URLs
+  </Step>
+
+  <Step title="Optional: Add custom sections">
+    Need to add Awards, Volunteering, or Certifications? Use the "Custom Sections" feature:
+
+    ```typescript src/hooks/useResume.tsx
+    const addCustomSection = (title: string) => {
+      setResumeData((prev) => ({
+        ...prev,
+        customSections: [
+          ...prev.customSections,
+          {
+            id: crypto.randomUUID(),
+            title,
+            items: [],
+          },
+        ],
+      }));
+    };
+    ```
+
+    Click "Add Custom Section", enter a title, and start adding items.
+  </Step>
+</Steps>
+
+<Info>
+  All your data is automatically saved to browser localStorage as you type. You won't lose your work even if you close the browser.
+</Info>
+
+### Reorder sections
+
+Customize the order of your resume sections using the Section Order Editor:
+
+1. Find the "Section Order" card near the top of the editor
+2. Use the up/down arrows to reorder sections
+3. The preview updates instantly to reflect your changes
+
+```typescript src/hooks/useResume.tsx
+const reorderSections = (newOrder: SectionId[]) => {
+  setResumeData((prev) => ({
+    ...prev,
+    sectionOrder: newOrder,
+  }));
+};
+```
+
+### View on mobile
+
+On mobile devices, the live preview is hidden to save space. Use the floating eye icon button in the bottom-right corner to open a full-screen preview modal.
+
+<Note>
+  The floating preview button appears only on screens smaller than 768px. On desktop, the preview is always visible alongside the editor.
+</Note>
+
+## Export your resume
+
+Once you're happy with your resume, export it as a PDF:
+
+<Steps>
+  <Step title="Click Export PDF">
+    Click the "Export PDF" button in the header:
+
+    ```typescript src/routes/index.tsx
+    const handlePrint = () => {
+      window.print();
+    };
+    ```
+
+    This opens your browser's print dialog.
+  </Step>
+
+  <Step title="Configure print settings">
+    In the print dialog:
+    - Select "Save as PDF" as the destination
+    - Ensure margins are set appropriately
+    - Disable headers and footers for a cleaner look
+  </Step>
+
+  <Step title="Save your PDF">
+    Click "Save" to download your resume as a PDF file.
+  </Step>
+</Steps>
+
+<Tip>
+  You can also export your resume data as JSON using the "Export Data" button. This creates a backup you can import later or share with others.
+</Tip>
 
 ## Next steps
 
-Now that you have your docs running, explore these key features:
+Congratulations! You've created your first resume. Here are some next steps:
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Customize templates" icon="palette" href="/development">
+    Learn how to modify templates and create your own designs
+  </Card>
+  <Card title="Development guide" icon="code" href="/development">
+    Explore the codebase and contribute to Resume Builder
+  </Card>
+  <Card title="Try different templates" icon="layout">
+    Experiment with all three templates to find the best fit for your industry
+  </Card>
+  <Card title="Backup your data" icon="download">
+    Export your resume data as JSON for safekeeping
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Building for production
+
+When you're ready to deploy Resume Builder:
+
+```bash
+# Build the production bundle
+pnpm build
+
+# Preview the production build locally
+pnpm preview
+```
+
+<Info>
+  The production build is optimized for performance and includes minification, tree-shaking, and other optimizations.
+</Info>

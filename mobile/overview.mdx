@@ -1,0 +1,176 @@
+---
+title: 'Mobile Overview'
+description: 'Understand the mobile-first responsive design of Resume Builder'
+icon: 'mobile'
+---
+
+Resume Builder is designed with a mobile-first approach, ensuring a seamless experience across all device sizes. The application adapts its layout and interface based on your screen size.
+
+## Mobile-First Design Philosophy
+
+The application starts with a mobile-optimized layout and progressively enhances the experience on larger screens. This ensures that mobile users get a fully functional, touch-friendly interface without compromise.
+
+<Info>
+  Mobile devices display a single-column layout with all editing controls stacked vertically for easy scrolling and editing.
+</Info>
+
+## Responsive Breakpoints
+
+The application uses specific breakpoints to adapt the layout:
+
+### Primary Breakpoint (768px)
+
+At 768px and above (tablets and desktops), the layout transforms from single-column to a two-column design:
+
+```css
+@media (min-width: 768px) {
+  .container > div:nth-child(2) {
+    flex-direction: row !important;
+    align-items: flex-start !important;
+  }
+  
+  .container > div:nth-child(2) > div:first-child {
+    flex: 1;
+    max-width: 50%;
+  }
+  
+  .desktop-preview {
+    display: flex !important;
+    flex: 1;
+  }
+}
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:196-210`
+
+### Additional Breakpoints
+
+The preview scales differently at larger sizes for optimal viewing:
+
+- **1024px+**: Preview scales to 60% (0.6 transform)
+- **1280px+**: Preview scales to 75% (0.75 transform)
+
+```css
+@media (min-width: 1024px) {
+  .desktop-preview > div {
+    transform: scale(0.6) !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .desktop-preview > div {
+    transform: scale(0.75) !important;
+  }
+}
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:223-233`
+
+## Single-Column Mobile Layout
+
+On mobile devices (below 768px), the editor displays in a single column:
+
+```tsx
+<div style={{ 
+  display: 'flex', 
+  flexDirection: 'column',
+  gap: 'var(--spacing-lg)',
+  alignItems: 'stretch'
+}}>
+  <div className="no-print" style={{ 
+    display: 'flex', 
+    flexDirection: 'column', 
+    gap: 'var(--spacing-lg)',
+    width: '100%'
+  }}>
+    <TemplateSelector />
+    <SectionOrderEditor />
+    <PersonalInfoForm />
+    {/* Additional form sections */}
+  </div>
+</div>
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:59-90`
+
+## Touch-Friendly Controls
+
+The mobile interface includes several touch-optimized features:
+
+### Responsive Container Padding
+
+Container padding adjusts based on viewport size using the `clamp()` function:
+
+```css
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(0.75rem, 3vw, 1.5rem);
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .container {
+    padding: clamp(1rem, 3vw, 2rem);
+  }
+}
+```
+
+From `/home/daytona/workspace/source/src/styles.css:53-64`
+
+### Fluid Typography
+
+Text sizes scale smoothly across devices:
+
+```tsx
+<h1 style={{ 
+  fontSize: 'clamp(1.5rem, 5vw, 2rem)', 
+  fontWeight: 'bold', 
+  color: 'var(--color-text)' 
+}}>
+  Resume Builder
+</h1>
+<p style={{ 
+  color: 'var(--color-text-muted)', 
+  fontSize: 'clamp(0.875rem, 2vw, 1rem)' 
+}}>
+  Build your professional resume in minutes.
+</p>
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:47-48`
+
+### Flexible Button Layout
+
+Buttons wrap automatically on smaller screens:
+
+```tsx
+<div style={{ 
+  display: 'flex', 
+  gap: 'var(--spacing-sm)', 
+  flexWrap: 'wrap' 
+}}>
+  <Button onClick={handlePrint} icon={<Printer size={16} />}>
+    Export PDF
+  </Button>
+  <ExportButton />
+  <ImportButton />
+</div>
+```
+
+From `/home/daytona/workspace/source/src/routes/index.tsx:50-56`
+
+<Tip>
+  The desktop preview is completely hidden on mobile to save screen space. Instead, you can use the floating preview button to view your resume on demand.
+</Tip>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Preview on Mobile" icon="eye" href="/mobile/preview">
+    Learn about the mobile preview functionality
+  </Card>
+  <Card title="Responsive Layout" icon="layout" href="/customization/layout">
+    Explore layout customization options
+  </Card>
+</CardGroup>

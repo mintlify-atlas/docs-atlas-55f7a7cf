@@ -1,0 +1,236 @@
+---
+title: 'Form Components'
+description: 'API reference for resume form components'
+---
+
+## PersonalInfoForm
+
+Form component for editing personal information.
+
+```typescript
+import { PersonalInfoForm } from './components/Editor/PersonalInfoForm';
+
+function Editor() {
+  return <PersonalInfoForm />;
+}
+```
+
+### Props
+
+This component does not accept any props. It uses the `useResume` hook internally to access and update data.
+
+### Features
+
+- Two-column grid layout for efficient space usage
+- Automatic data binding with `useResume` hook
+- Wrapped in a Card component with title
+- Includes all PersonalInfo fields:
+  - Full Name
+  - Job Title
+  - Email (with email input type)
+  - Phone (with tel input type)
+  - Location
+  - Website
+  - LinkedIn
+  - GitHub
+
+## ExperienceForm
+
+Form component for managing work experience entries.
+
+```typescript
+import { ExperienceForm } from './components/Editor/ExperienceForm';
+
+function Editor() {
+  return <ExperienceForm />;
+}
+```
+
+### Props
+
+This component does not accept any props.
+
+### Features
+
+- Add new experience entries with "Add" button
+- Edit multiple experience entries
+- Remove individual entries with trash icon
+- Animated entry transitions (using Framer Motion)
+- "Currently working here" checkbox that disables end date
+- Empty state message when no entries exist
+- Fields included:
+  - Company
+  - Position
+  - Location
+  - Start Date (placeholder: "MM/YYYY")
+  - End Date (placeholder: "MM/YYYY or Present", disabled when current is true)
+  - Current position checkbox
+  - Description (textarea)
+
+### Usage Example
+
+```typescript
+const { resumeData, addExperience } = useResume();
+
+// The form handles all interactions internally
+// Access the data via resumeData.experience
+console.log(resumeData.experience);
+```
+
+## EducationForm
+
+Form component for managing education entries.
+
+```typescript
+import { EducationForm } from './components/Editor/EducationForm';
+
+function Editor() {
+  return <EducationForm />;
+}
+```
+
+### Props
+
+This component does not accept any props.
+
+### Features
+
+- Add new education entries with "Add" button
+- Edit multiple education entries
+- Remove individual entries with trash icon
+- Animated entry transitions (using Framer Motion)
+- Empty state message when no entries exist
+- Fields included:
+  - School
+  - Degree
+  - Field of Study
+  - Start Date (placeholder: "YYYY")
+  - End Date (placeholder: "YYYY")
+  - Description (textarea with placeholder for coursework, honors, etc.)
+
+## SkillsForm
+
+Form component for managing skills (referenced but not read in detail).
+
+```typescript
+import { SkillsForm } from './components/Editor/SkillsForm';
+
+function Editor() {
+  return <SkillsForm />;
+}
+```
+
+### Props
+
+This component does not accept any props.
+
+### Features
+
+- Add new skills by name
+- Remove skills
+- Uses `addSkill` and `removeSkill` methods from `useResume`
+
+## ProjectsForm
+
+Form component for managing project entries (referenced but not read in detail).
+
+```typescript
+import { ProjectsForm } from './components/Editor/ProjectsForm';
+
+function Editor() {
+  return <ProjectsForm />;
+}
+```
+
+### Props
+
+This component does not accept any props.
+
+### Features
+
+- Add, edit, and remove project entries
+- Manage project details like name, description, URLs, and technologies
+- Uses `addProject`, `updateProject`, and `removeProject` methods
+
+## CustomSectionForm
+
+Form component for managing custom resume sections (referenced but not read in detail).
+
+```typescript
+import { CustomSectionForm } from './components/Editor/CustomSectionForm';
+
+function Editor() {
+  return <CustomSectionForm />;
+}
+```
+
+### Props
+
+This component does not accept any props.
+
+### Features
+
+- Create custom sections with custom titles
+- Add items to custom sections
+- Full CRUD operations for custom sections and their items
+
+## Common Patterns
+
+All form components follow these patterns:
+
+### Data Binding
+
+```typescript
+const { resumeData, updateField } = useResume();
+
+<Input
+  value={resumeData.someField}
+  onChange={(e) => updateField('someField', e.target.value)}
+/>
+```
+
+### Card Layout
+
+All forms are wrapped in a `Card` component:
+
+```typescript
+<Card 
+  title="Section Title"
+  action={<Button onClick={addItem}>Add</Button>}
+>
+  {/* Form content */}
+</Card>
+```
+
+### Remove Actions
+
+Remove buttons use a ghost variant with trash icon:
+
+```typescript
+<Button
+  variant="ghost"
+  size="sm"
+  onClick={() => removeItem(id)}
+  icon={<Trash2 size={14} />}
+  aria-label="Remove item"
+/>
+```
+
+### Animations
+
+Entry lists use Framer Motion for smooth transitions:
+
+```typescript
+<AnimatePresence>
+  {items.map((item) => (
+    <motion.div
+      key={item.id}
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+    >
+      {/* Item content */}
+    </motion.div>
+  ))}
+</AnimatePresence>
+```

@@ -1,0 +1,332 @@
+---
+title: "Customization & Preview"
+description: "Real-time preview, live editing, and customization options"
+---
+
+## Real-Time Preview
+
+Resume Builder features a live preview that updates instantly as you edit your resume content. The preview is powered by the Universal Renderer component (`~/workspace/source/src/components/Preview/Preview.tsx:9`).
+
+### How Preview Works
+
+The preview system:
+1. Reads your current resume data and selected template
+2. Applies template configuration (colors, fonts, layout)
+3. Renders the resume using the UniversalRenderer
+4. Updates automatically on any data change
+
+**Preview Component:**
+
+```typescript
+export const Preview = () => {
+  const { selectedTemplate, resumeData } = useResume();
+  const { getCustomTemplate } = useCustomTemplates();
+
+  const getConfig = (): TemplateConfig => {
+    // Check if it's a custom template
+    const customTemplate = getCustomTemplate(selectedTemplate);
+    if (customTemplate) {
+      return customTemplate;
+    }
+
+    // Fall back to built-in templates
+    switch (selectedTemplate) {
+      case 'modern':
+        return modernConfig as unknown as TemplateConfig;
+      case 'minimal':
+        return minimalConfig as unknown as TemplateConfig;
+      case 'classic':
+      default:
+        return classicConfig as unknown as TemplateConfig;
+    }
+  };
+
+  return <UniversalRenderer data={resumeData} config={getConfig()} />;
+};
+```
+
+Source: `~/workspace/source/src/components/Preview/Preview.tsx:9`
+
+## Responsive Preview Display
+
+The preview adapts to different screen sizes:
+
+### Desktop View
+
+On screens 768px and wider, the preview appears in a sticky sidebar:
+
+```typescript
+<div className="desktop-preview" style={{ 
+  display: 'none',
+  position: 'sticky', 
+  top: 'var(--spacing-md)',
+  justifyContent: 'center'
+}}>
+  <div style={{ 
+    transform: 'scale(0.5)', 
+    transformOrigin: 'top center',
+    width: '210mm',
+    boxShadow: 'var(--shadow-xl)',
+  }}>
+    <Preview />
+  </div>
+</div>
+```
+
+Source: `~/workspace/source/src/routes/index.tsx:93`
+
+**Scaling by Breakpoint:**
+- 768px - 1023px: 50% scale
+- 1024px - 1279px: 60% scale
+- 1280px+: 75% scale
+
+### Mobile View
+
+On mobile devices, the preview is accessible via a floating button with an Eye icon:
+
+```typescript
+<button
+  className="mobile-preview-btn"
+  onClick={() => setShowMobilePreview(true)}
+  style={{
+    position: 'fixed',
+    bottom: 'var(--spacing-lg)',
+    right: 'var(--spacing-lg)',
+    backgroundColor: 'var(--color-primary)',
+    color: 'white',
+    borderRadius: 'var(--radius-full)',
+    width: '3.5rem',
+    height: '3.5rem',
+  }}
+>
+  <Eye size={24} />
+</button>
+```
+
+Source: `~/workspace/source/src/routes/index.tsx:171`
+
+Tapping this button opens a full-screen modal with the preview at full size.
+
+<Frame>
+  <img src="/images/mobile-preview.png" alt="Mobile preview modal" />
+</Frame>
+
+## Live Editing
+
+All form inputs update the preview instantly without requiring a save button. This is achieved through React state management.
+
+### Personal Info Live Updates
+
+```typescript
+export const PersonalInfoForm = () => {
+  const { resumeData, updatePersonalInfo } = useResume();
+  const { personalInfo } = resumeData;
+
+  return (
+    <Input
+      label="Full Name"
+      value={personalInfo.fullName}
+      onChange={(e) => updatePersonalInfo('fullName', e.target.value)}
+      placeholder="John Doe"
+    />
+  );
+};
+```
+
+Source: `~/workspace/source/src/components/Editor/PersonalInfoForm.tsx:13`
+
+When you type in the "Full Name" field:
+1. `onChange` fires with the new value
+2. `updatePersonalInfo` updates the React state
+3. The state change triggers auto-save to localStorage
+4. React re-renders the Preview component
+5. The preview displays the updated name
+
+All of this happens in milliseconds, creating the illusion of instant updates.
+
+### Update Function Implementation
+
+```typescript
+const updatePersonalInfo = (
+  field: keyof ResumeData['personalInfo'],
+  value: string
+) => {
+  setResumeData((prev) => ({
+    ...prev,
+    personalInfo: { ...prev.personalInfo, [field]: value },
+  }));
+};
+```
+
+Source: `~/workspace/source/src/hooks/useResume.tsx:78`
+
+<Info>
+  Every keystroke triggers a state update, preview refresh, and localStorage save. This creates a seamless editing experience.
+</Info>
+
+## Section-Specific Customization
+
+Each section type can have different variants based on the template. Templates define section variants in their configuration:
+
+```json
+{
+  "sectionVariants": {
+    "personal-info": "centered",
+    "summary": "default",
+    "experience": "minimal",
+    "education": "minimal",
+    "skills": "bullet-list",
+    "projects": "default",
+    "customSections": "default"
+  }
+}
+```
+
+Source: `~/workspace/source/src/templates/minimal.json:32`
+
+### Available Variants
+
+**Personal Info Variants:**
+- `centered`: Name and contact info centered (Classic, Minimal)
+- `default`: Left-aligned (Modern)
+
+**Skills Variants:**
+- `list`: Simple list format (Classic)
+- `sidebar`: Optimized for sidebar display (Modern)
+- `bullet-list`: Bulleted format (Minimal)
+
+**Experience/Education Variants:**
+- `default`: Standard format with all details
+- `minimal`: Condensed format with reduced spacing
+
+## Dark Mode Support
+
+The editor interface supports dark mode through CSS custom properties:
+
+```css
+:root {
+  --color-bg: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-primary: #2563eb;
+  --color-border: #e0e0e0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0a0a0a;
+    --color-surface: #1a1a1a;
+    --color-text: #f0f0f0;
+    --color-text-muted: #a0a0a0;
+    --color-primary: #3b82f6;
+    --color-border: #2a2a2a;
+  }
+}
+```
+
+<Note>
+  Dark mode only affects the editor UI. The resume preview always maintains the colors defined in the template configuration to ensure print accuracy.
+</Note>
+
+## Template Customization
+
+Each template can be customized through its JSON configuration file. Here are the customizable properties:
+
+### Theme Options
+
+<ParamField path="colors" type="object">
+  Color scheme for the template
+  
+  <Expandable title="properties">
+    <ParamField path="primary" type="string">
+      Primary accent color (hex)
+    </ParamField>
+    <ParamField path="secondary" type="string">
+      Secondary accent color (hex)
+    </ParamField>
+    <ParamField path="background" type="string">
+      Background color (hex)
+    </ParamField>
+    <ParamField path="text" type="string">
+      Main text color (hex)
+    </ParamField>
+    <ParamField path="textMuted" type="string">
+      Muted text color (hex)
+    </ParamField>
+    <ParamField path="border" type="string">
+      Border color (hex)
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="typography" type="object">
+  Typography settings
+  
+  <Expandable title="properties">
+    <ParamField path="fontFamily" type="string">
+      Body font family
+    </ParamField>
+    <ParamField path="headingFamily" type="string">
+      Heading font family
+    </ParamField>
+    <ParamField path="baseSize" type="string">
+      Base font size (e.g., "11pt")
+    </ParamField>
+    <ParamField path="lineHeight" type="string">
+      Line height ratio (e.g., "1.6")
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField path="spacing" type="object">
+  Spacing configuration
+  
+  <Expandable title="properties">
+    <ParamField path="sectionGap" type="string">
+      Gap between sections (e.g., "1.5rem")
+    </ParamField>
+    <ParamField path="itemGap" type="string">
+      Gap between items (e.g., "1rem")
+    </ParamField>
+    <ParamField path="pagePadding" type="string">
+      Page padding (e.g., "2.5cm")
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+### Layout Options
+
+<ParamField path="layout.type" type="string">
+  Layout type: `"single-column"` or `"two-column"`
+</ParamField>
+
+<ParamField path="layout.columns" type="string">
+  Column widths (two-column only): e.g., `"35% 1fr"`
+</ParamField>
+
+<ParamField path="layout.sidebarPosition" type="string">
+  Sidebar position (two-column only): `"left"` or `"right"`
+</ParamField>
+
+## Print Optimization
+
+The preview is optimized for PDF export through print media queries. When printing:
+
+- Editor UI is hidden (`no-print` class)
+- Full-size preview is shown (`print-only` class)
+- A4 page size is enforced (210mm width)
+- Background colors are preserved
+
+```typescript
+{/* Print-only container to ensure full size print */}
+<div className="print-only" style={{ display: 'none' }}>
+  <Preview />
+</div>
+```
+
+Source: `~/workspace/source/src/routes/index.tsx:111`
+
+<Tip>
+  The preview you see on screen is exactly what will be exported to PDF, ensuring WYSIWYG (What You See Is What You Get) accuracy.
+</Tip>

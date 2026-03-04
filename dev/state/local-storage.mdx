@@ -1,0 +1,246 @@
+---
+title: 'Local Storage'
+description: 'How resume data is automatically persisted to localStorage'
+---
+
+## Overview
+
+The Resume Builder automatically saves all resume data and template selection to the browser's localStorage. This ensures users never lose their work, even if they close the browser or refresh the page.
+
+## Storage Keys
+
+Two localStorage keys are used to persist application state (`src/hooks/useResume.tsx:4-5`):
+
+<CodeGroup>
+
+```typescript Resume Data
+const STORAGE_KEY = 'resume-builder-data';
+```
+
+```typescript Template Selection
+const TEMPLATE_STORAGE_KEY = 'resume-builder-template';
+```
+
+</CodeGroup>
+
+<ParamField path="resume-builder-data" type="string">
+  Stores the complete `ResumeData` object as JSON, including personal info, experience, education, skills, projects, custom sections, and section ordering.
+</ParamField>
+
+<ParamField path="resume-builder-template" type="string">
+  Stores the selected template name: `'classic'`, `'modern'`, or `'minimal'`.
+</ParamField>
+
+## Auto-Save Strategy
+
+Data is automatically saved to localStorage whenever it changes, using React's `useEffect` hooks.
+
+### Resume Data Auto-Save
+
+The resume data is saved whenever `resumeData` changes (`src/hooks/useResume.tsx:66-70`):
+
+```typescript
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+  }
+}, [resumeData]);
+```
+
+<Info>
+The `typeof window !== 'undefined'` check ensures the code doesn't run during server-side rendering (SSR), preventing errors in frameworks like Next.js.
+</Info>
+
+### Template Selection Auto-Save
+
+Template selection is saved separately (`src/hooks/useResume.tsx:72-76`):
+
+```typescript
+useEffect(() => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem(TEMPLATE_STORAGE_KEY, selectedTemplate);
+  }
+}, [selectedTemplate]);
+```
+
+## Data Restoration
+
+When the application loads, data is restored from localStorage during state initialization.
+
+### Resume Data Restoration
+
+The `useState` initializer function loads saved data (`src/hooks/useResume.tsx:37-54`):
+
+```typescript
+const [resumeData, setResumeData] = useState<ResumeData>(() => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Migrate old data: ensure personal-info is in sectionOrder
+        if (parsed.sectionOrder && !parsed.sectionOrder.includes('personal-info')) {
+          parsed.sectionOrder = ['personal-info', ...parsed.sectionOrder];
+        }
+        return parsed;
+      } catch (e) {
+        console.error('Failed to parse resume data', e);
+      }
+    }
+  }
+  return initialResumeData;
+});
+```
+
+<Steps>
+  <Step title="Check for Browser Environment">
+    Verify `window` is defined to avoid SSR issues.
+  </Step>
+  
+  <Step title="Retrieve Stored Data">
+    Attempt to get data from localStorage using the storage key.
+  </Step>
+  
+  <Step title="Parse and Validate">
+    Parse the JSON string and run any necessary migrations.
+  </Step>
+  
+  <Step title="Fallback to Default">
+    If no data exists or parsing fails, use `initialResumeData`.
+  </Step>
+</Steps>
+
+### Template Restoration
+
+Template selection is restored with validation (`src/hooks/useResume.tsx:56-64`):
+
+```typescript
+const [selectedTemplate, setSelectedTemplate] = useState<ResumeTemplate>(() => {
+  if (typeof window !== 'undefined') {
+    const saved = localStorage.getItem(TEMPLATE_STORAGE_KEY);
+    if (saved && ['classic', 'modern', 'minimal'].includes(saved)) {
+      return saved as ResumeTemplate;
+    }
+  }
+  return 'classic';
+});
+```
+
+<Warning>
+The template is validated against known values (`'classic'`, `'modern'`, `'minimal'`) before use. Invalid values default to `'classic'`.
+</Warning>
+
+## Data Migration
+
+The codebase includes migration logic to handle breaking changes in the data structure.
+
+### Personal Info Migration
+
+Older versions of the app didn't include `'personal-info'` in the `sectionOrder` array. The migration ensures it's always present (`src/hooks/useResume.tsx:44-46`):
+
+```typescript
+if (parsed.sectionOrder && !parsed.sectionOrder.includes('personal-info')) {
+  parsed.sectionOrder = ['personal-info', ...parsed.sectionOrder];
+}
+```
+
+This migration:
+- Checks if `sectionOrder` exists and lacks `'personal-info'`
+- Prepends `'personal-info'` to the beginning of the array
+- Ensures backward compatibility with older saved data
+
+## Error Handling
+
+### Parse Errors
+
+If JSON parsing fails during restoration, the error is logged and the app falls back to default data:
+
+```typescript
+try {
+  const parsed = JSON.parse(saved);
+  // ...
+} catch (e) {
+  console.error('Failed to parse resume data', e);
+}
+return initialResumeData; // Fallback
+```
+
+### Missing Data
+
+If no saved data exists in localStorage, the app initializes with `initialResumeData` from `src/types.ts:81-99`:
+
+```typescript
+export const initialResumeData: ResumeData = {
+  personalInfo: {
+    fullName: '',
+    email: '',
+    phone: '',
+    website: '',
+    linkedin: '',
+    github: '',
+    location: '',
+    jobTitle: '',
+  },
+  summary: '',
+  experience: [],
+  education: [],
+  skills: [],
+  projects: [],
+  customSections: [],
+  sectionOrder: defaultSectionOrder,
+};
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Immediate Persistence" icon="floppy-disk">
+    Every state change triggers an automatic save. You don't need to implement manual save buttons.
+  </Card>
+  
+  <Card title="SSR Compatibility" icon="server">
+    Always check for `window` existence before accessing localStorage to support server-side rendering.
+  </Card>
+  
+  <Card title="Graceful Degradation" icon="shield-check">
+    Parse errors and missing data are handled gracefully with fallbacks to initial state.
+  </Card>
+  
+  <Card title="Data Validation" icon="clipboard-check">
+    Template values are validated before use to prevent invalid states.
+  </Card>
+</CardGroup>
+
+## Clearing Stored Data
+
+To clear all saved resume data (useful for testing or starting fresh):
+
+```javascript
+// In browser console
+localStorage.removeItem('resume-builder-data');
+localStorage.removeItem('resume-builder-template');
+
+// Or clear all localStorage
+localStorage.clear();
+```
+
+<Note>
+After clearing localStorage, refresh the page to load the default initial state.
+</Note>
+
+## Storage Limits
+
+localStorage typically has a 5-10MB limit per origin. The Resume Builder's data structure is text-based and highly compressible, so it's unlikely to hit this limit under normal usage.
+
+If you need to implement storage limit handling:
+
+```typescript
+try {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(resumeData));
+} catch (e) {
+  if (e.name === 'QuotaExceededError') {
+    console.error('localStorage quota exceeded');
+    // Handle quota error (e.g., notify user, compress data)
+  }
+}
+```

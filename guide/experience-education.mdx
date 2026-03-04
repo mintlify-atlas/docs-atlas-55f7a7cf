@@ -1,0 +1,152 @@
+---
+title: Experience & Education
+description: Add and manage your work experience and educational background
+---
+
+The Experience and Education sections are crucial parts of your resume. They showcase your professional history and academic achievements.
+
+## Work Experience
+
+Add your work history to demonstrate your professional background and accomplishments.
+
+### Adding Experience
+
+<Steps>
+  <Step title="Click the Add Button">
+    Click the **Add** button in the Experience card header to create a new experience entry.
+  </Step>
+  
+  <Step title="Fill in Company Details">
+    Enter the company name and your position.
+    
+    **Fields:**
+    - `company` (string): The organization name
+    - `position` (string): Your job title or role
+  </Step>
+  
+  <Step title="Add Location and Dates">
+    Specify where and when you worked.
+    
+    **Fields:**
+    - `location` (string): City and state/country
+    - `startDate` (string): When you started (format: MM/YYYY)
+    - `endDate` (string): When you ended (format: MM/YYYY or "Present")
+    - `current` (boolean): Check "I currently work here" to disable end date
+  </Step>
+  
+  <Step title="Describe Your Role">
+    Add a description of your responsibilities and achievements.
+    
+    **Field:** `description` (string, multi-line)
+    
+    **Tip:** Use bullet points starting with "•" for better readability
+  </Step>
+</Steps>
+
+### Current Position
+
+<Note>
+  When you check the "I currently work here" checkbox, the `current` field is set to `true` and the end date field becomes disabled. The resume will display "Present" as your end date.
+</Note>
+
+### Experience Data Structure
+
+```typescript
+type Experience = {
+  id: string;           // Auto-generated unique identifier
+  company: string;      // Company name
+  position: string;     // Job title
+  location: string;     // Work location
+  startDate: string;    // Start date (MM/YYYY)
+  endDate: string;      // End date (MM/YYYY or Present)
+  current: boolean;     // Currently working here
+  description: string;  // Role description
+};
+```
+
+### Managing Experience Entries
+
+- **Remove:** Click the trash icon in the top-right corner of any experience card
+- **Reorder:** Use the [Section Ordering](/guide/section-ordering) feature to change the position of the entire Experience section
+- **Animation:** Entries smoothly fade in when added and fade out when removed
+
+## Education
+
+Document your academic background and credentials.
+
+### Adding Education
+
+<Steps>
+  <Step title="Click the Add Button">
+    Click the **Add** button in the Education card header to create a new education entry.
+  </Step>
+  
+  <Step title="Enter School Information">
+    Add your educational institution details.
+    
+    **Fields:**
+    - `school` (string): Name of the institution
+    - `degree` (string): Type of degree (e.g., Bachelor of Science, Master of Arts)
+    - `field` (string): Field of study or major
+  </Step>
+  
+  <Step title="Add Dates">
+    Specify when you attended.
+    
+    **Fields:**
+    - `startDate` (string): Year started (format: YYYY)
+    - `endDate` (string): Year completed or expected (format: YYYY)
+  </Step>
+  
+  <Step title="Add Description (Optional)">
+    Include relevant coursework, honors, GPA, or achievements.
+    
+    **Field:** `description` (string, multi-line)
+    
+    **Example:** "• Relevant coursework, honors, etc."
+  </Step>
+</Steps>
+
+### Education Data Structure
+
+```typescript
+type Education = {
+  id: string;          // Auto-generated unique identifier
+  school: string;      // Institution name
+  degree: string;      // Degree type
+  field: string;       // Field of study
+  startDate: string;   // Start year (YYYY)
+  endDate: string;     // End year (YYYY)
+  description: string; // Additional details
+};
+```
+
+### Managing Education Entries
+
+- **Remove:** Click the trash icon in the top-right corner of any education card
+- **Multiple Degrees:** Add multiple education entries for different degrees or certifications
+- **Empty State:** When no education is added, a helpful message appears
+
+## Form Features
+
+Both Experience and Education forms share these features:
+
+<Tip>
+  All forms use a responsive grid layout that adapts to your screen size for optimal data entry.
+</Tip>
+
+<Tip>
+  Changes are saved automatically as you type. Your data persists in the browser's local storage.
+</Tip>
+
+<Tip>
+  Use the description fields to highlight your most impressive achievements and responsibilities. Start each point with a bullet (•) for clean formatting.
+</Tip>
+
+## Best Practices
+
+1. **List in Reverse Chronological Order:** Add your most recent positions first
+2. **Be Specific:** Include measurable achievements when possible
+3. **Keep it Relevant:** Focus on experience and education relevant to your target position
+4. **Use Action Verbs:** Start description bullets with strong action verbs (Led, Developed, Managed)
+5. **Consistent Formatting:** Use the same date format across all entries
