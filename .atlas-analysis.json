@@ -1,0 +1,143 @@
+{
+  "projectType": "saas",
+  "projectName": "Resume Builder",
+  "projectDescription": "Build professional resumes in minutes with an interactive, mobile-first resume builder.",
+  "theme": "almond",
+  "primaryColor": "#eab968",
+  "lightColor": "#7b3605",
+  "darkColor": "#4a9261",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/templates",
+              "features/sections",
+              "features/customization",
+              "features/export-import"
+            ]
+          },
+          {
+            "group": "User Guide",
+            "pages": [
+              "guide/personal-info",
+              "guide/experience-education",
+              "guide/skills-projects",
+              "guide/custom-sections",
+              "guide/section-ordering",
+              "guide/exporting"
+            ]
+          },
+          {
+            "group": "Mobile Experience",
+            "pages": [
+              "mobile/overview",
+              "mobile/preview"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Development",
+        "groups": [
+          {
+            "group": "Architecture",
+            "pages": [
+              "dev/architecture",
+              "dev/tech-stack",
+              "dev/project-structure"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "dev/components/editor-forms",
+              "dev/components/preview",
+              "dev/components/ui-components"
+            ]
+          },
+          {
+            "group": "State Management",
+            "pages": [
+              "dev/state/resume-context",
+              "dev/state/local-storage"
+            ]
+          },
+          {
+            "group": "Template System",
+            "pages": [
+              "dev/templates/overview",
+              "dev/templates/creating-templates"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Types",
+            "pages": [
+              "api/types/resume-data",
+              "api/types/sections"
+            ]
+          },
+          {
+            "group": "Hooks",
+            "pages": [
+              "api/hooks/use-resume"
+            ]
+          },
+          {
+            "group": "Components",
+            "pages": [
+              "api/components/forms",
+              "api/components/ui"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Multiple professional resume templates (Classic, Modern, Minimal)",
+    "Real-time live preview of resume changes",
+    "Comprehensive resume sections (Personal Info, Experience, Education, Skills, Projects, Custom Sections)",
+    "Drag-and-drop section reordering",
+    "Mobile-first responsive design with floating preview",
+    "Auto-save to browser localStorage",
+    "PDF export via browser print functionality",
+    "Import/Export resume data as JSON",
+    "Dark mode UI for comfortable editing"
+  ],
+  "publicApiSurface": [
+    "useResume() - Main context hook for resume state management",
+    "ResumeProvider - Context provider component",
+    "ResumeData - Type definition for resume data structure",
+    "PersonalInfo - Type for personal information",
+    "Experience - Type for work experience entries",
+    "Education - Type for education entries",
+    "Skill - Type for skills",
+    "Project - Type for projects",
+    "CustomSection - Type for custom sections",
+    "ResumeTemplate - Type for template selection ('classic' | 'modern' | 'minimal')",
+    "updatePersonalInfo() - Update personal information fields",
+    "updateSummary() - Update professional summary",
+    "addExperience() / updateExperience() / removeExperience() - Manage experience entries",
+    "addEducation() / updateEducation() / removeEducation() - Manage education entries",
+    "addSkill() / removeSkill() - Manage skills",
+    "addProject() / updateProject() / removeProject() - Manage projects",
+    "addCustomSection() / updateCustomSection() / removeCustomSection() - Manage custom sections",
+    "reorderSections() - Change section display order"
+  ]
+}
