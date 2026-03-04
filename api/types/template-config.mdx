@@ -1,0 +1,354 @@
+---
+title: Template configuration types
+description: Type definitions for template configuration and customization
+---
+
+This page documents the TypeScript types used for resume template configuration, including both built-in and AI-generated custom templates.
+
+## TemplateConfig
+
+The main template configuration type that defines all aspects of a resume template.
+
+```typescript types.ts
+export type TemplateConfig = {
+  id: string;
+  name: string;
+  description: string;
+  theme: ThemeConfig;
+  layout: {
+    type: 'single-column' | 'two-column';
+    columns?: string;
+    sidebarPosition?: 'left' | 'right';
+  };
+  structure: {
+    sidebar?: SectionId[];
+    main: SectionId[];
+  };
+  sectionVariants: Record<SectionId, SectionVariant>;
+};
+```
+
+### Fields
+
+<ParamField path="id" type="string" required>
+  Unique identifier for the template. Built-in templates use IDs like `classic`, `modern`, `minimal`. AI-generated templates use IDs like `custom-modern-blue-1234567890`.
+</ParamField>
+
+<ParamField path="name" type="string" required>
+  Display name shown in the template selector (e.g., "Modern Blue", "Classic Professional").
+</ParamField>
+
+<ParamField path="description" type="string" required>
+  Brief description of the template's style and characteristics (1-2 sentences).
+</ParamField>
+
+<ParamField path="theme" type="ThemeConfig" required>
+  Complete theme configuration including colors, typography, and spacing. See [ThemeConfig](#themeconfig) below.
+</ParamField>
+
+<ParamField path="layout.type" type="'single-column' | 'two-column'" required>
+  Layout type:
+  - `single-column`: Traditional top-to-bottom layout
+  - `two-column`: Sidebar layout with two columns
+</ParamField>
+
+<ParamField path="layout.columns" type="string">
+  CSS grid columns value (e.g., `"35% 1fr"`). Only used for two-column layouts.
+</ParamField>
+
+<ParamField path="layout.sidebarPosition" type="'left' | 'right'">
+  Position of the sidebar. Only used for two-column layouts. Default: `left`.
+</ParamField>
+
+<ParamField path="structure.sidebar" type="SectionId[]">
+  Array of section IDs to render in the sidebar. Only used for two-column layouts.
+</ParamField>
+
+<ParamField path="structure.main" type="SectionId[]" required>
+  Array of section IDs to render in the main content area. For single-column layouts, this contains all sections.
+</ParamField>
+
+<ParamField path="sectionVariants" type="Record<SectionId, SectionVariant>" required>
+  Mapping of section IDs to their visual variants. See [SectionVariant](#sectionvariant) below.
+</ParamField>
+
+## ThemeConfig
+
+Defines the visual theme including colors, typography, and spacing.
+
+```typescript template.ts
+export type ThemeConfig = {
+  colors: {
+    primary: string;
+    secondary: string;
+    background: string;
+    text: string;
+    textMuted: string;
+    border: string;
+    sidebarText?: string;
+  };
+  typography: {
+    fontFamily: string;
+    headingFamily?: string;
+    baseSize: string;
+    lineHeight: string;
+  };
+  spacing: {
+    sectionGap: string;
+    itemGap: string;
+    pagePadding: string;
+  };
+};
+```
+
+### Color fields
+
+<ParamField path="colors.primary" type="string" required>
+  Primary accent color (hex code, e.g., `#2563eb`). Used for section headers and highlights.
+</ParamField>
+
+<ParamField path="colors.secondary" type="string" required>
+  Secondary accent color (hex code). Often the same as primary or a lighter/darker variant.
+</ParamField>
+
+<ParamField path="colors.background" type="string" required>
+  Page background color (typically `#ffffff` for white).
+</ParamField>
+
+<ParamField path="colors.text" type="string" required>
+  Main text color (hex code, e.g., `#1a1a1a` or `#333333`).
+</ParamField>
+
+<ParamField path="colors.textMuted" type="string" required>
+  Muted text color for secondary information (hex code, e.g., `#666666`).
+</ParamField>
+
+<ParamField path="colors.border" type="string" required>
+  Border color for section dividers (hex code, e.g., `#e0e0e0`).
+</ParamField>
+
+<ParamField path="colors.sidebarText" type="string">
+  Text color for sidebar content in two-column layouts. If omitted, uses `text` color.
+</ParamField>
+
+### Typography fields
+
+<ParamField path="typography.fontFamily" type="string" required>
+  Base font family (CSS font stack, e.g., `"Inter, sans-serif"` or `"Merriweather, serif"`).
+</ParamField>
+
+<ParamField path="typography.headingFamily" type="string">
+  Font family for headings. If omitted, uses `fontFamily`.
+</ParamField>
+
+<ParamField path="typography.baseSize" type="string" required>
+  Base font size (e.g., `"10pt"` or `"11pt"`). Use point units for print optimization.
+</ParamField>
+
+<ParamField path="typography.lineHeight" type="string" required>
+  Base line height (e.g., `"1.5"` or `"1.6"`). Unitless values are recommended.
+</ParamField>
+
+### Spacing fields
+
+<ParamField path="spacing.sectionGap" type="string" required>
+  Gap between major sections (e.g., `"1.5rem"` or `"2rem"`).
+</ParamField>
+
+<ParamField path="spacing.itemGap" type="string" required>
+  Gap between items within a section (e.g., `"1rem"`).
+</ParamField>
+
+<ParamField path="spacing.pagePadding" type="string" required>
+  Page padding (e.g., `"2.5cm"` or `"2rem"`). Can be a single value or multiple (e.g., `"3rem 2.5rem"`).
+</ParamField>
+
+## SectionVariant
+
+Visual style variant for rendering a section.
+
+```typescript template.ts
+export type SectionVariant = 
+  | 'default' 
+  | 'centered' 
+  | 'minimal' 
+  | 'timeline' 
+  | 'grid' 
+  | 'tags' 
+  | 'bubbles' 
+  | 'bullet-list'
+  | 'sidebar'
+  | 'compact';
+```
+
+### Variants by section
+
+Not all variants are valid for all sections. Here's the mapping:
+
+<Accordion title="personal-info">
+  - `default`: Left-aligned contact info with icon labels
+  - `centered`: Centered name and contact info
+  - `minimal`: Minimal spacing with inline contact items
+</Accordion>
+
+<Accordion title="summary">
+  - `default`: Standard paragraph format
+</Accordion>
+
+<Accordion title="experience">
+  - `default`: Standard job entry with company, title, dates
+  - `timeline`: Timeline-style with date markers
+  - `minimal`: Compact format with reduced spacing
+  - `compact`: Ultra-compact single-line entries
+</Accordion>
+
+<Accordion title="education">
+  - `default`: Standard education entry with school, degree, dates
+  - `minimal`: Compact format with reduced spacing
+</Accordion>
+
+<Accordion title="skills">
+  - `default`: Comma-separated list
+  - `tags`: Inline tags with borders
+  - `bubbles`: Rounded bubble-style tags
+  - `bullet-list`: Bulleted list format
+  - `sidebar`: Optimized for sidebar display (vertical list)
+</Accordion>
+
+<Accordion title="projects">
+  - `default`: Standard project entry with name, description, links
+  - `grid`: Grid layout for multiple projects (2 columns)
+</Accordion>
+
+<Accordion title="customSections">
+  - `default`: Standard format matching experience layout
+</Accordion>
+
+## CustomTemplate
+
+Extended template config with metadata for custom (AI-generated) templates.
+
+```typescript useCustomTemplates.tsx
+export interface CustomTemplate extends TemplateConfig {
+  createdAt: string;
+}
+```
+
+<ParamField path="createdAt" type="string" required>
+  ISO 8601 timestamp of when the template was created (e.g., `"2024-03-04T12:00:00.000Z"`).
+</ParamField>
+
+## Example configurations
+
+### Single-column template
+
+```json classic.json
+{
+  "id": "classic",
+  "name": "Classic",
+  "description": "A traditional, professional resume layout suitable for all industries.",
+  "theme": {
+    "colors": {
+      "primary": "#2c3e50",
+      "secondary": "#f8f9fa",
+      "background": "#ffffff",
+      "text": "#333333",
+      "textMuted": "#666666",
+      "border": "#e0e0e0"
+    },
+    "typography": {
+      "fontFamily": "Merriweather, serif",
+      "headingFamily": "Merriweather, serif",
+      "baseSize": "11pt",
+      "lineHeight": "1.6"
+    },
+    "spacing": {
+      "sectionGap": "1.5rem",
+      "itemGap": "1rem",
+      "pagePadding": "2.5cm"
+    }
+  },
+  "layout": {
+    "type": "single-column"
+  },
+  "structure": {
+    "main": ["personal-info", "summary", "experience", "education", "skills", "projects", "customSections"]
+  },
+  "sectionVariants": {
+    "personal-info": "centered",
+    "summary": "default",
+    "experience": "default",
+    "education": "default",
+    "skills": "list",
+    "projects": "default",
+    "customSections": "default"
+  }
+}
+```
+
+### Two-column template
+
+```json modern.json
+{
+  "id": "modern",
+  "name": "Modern",
+  "description": "A contemporary two-column layout with a vibrant sidebar.",
+  "theme": {
+    "colors": {
+      "primary": "#2563eb",
+      "secondary": "#2563eb",
+      "background": "#ffffff",
+      "text": "#1a1a1a",
+      "textMuted": "#666666",
+      "border": "#e0e0e0",
+      "sidebarText": "#ffffff"
+    },
+    "typography": {
+      "fontFamily": "Inter, sans-serif",
+      "headingFamily": "Inter, sans-serif",
+      "baseSize": "10pt",
+      "lineHeight": "1.5"
+    },
+    "spacing": {
+      "sectionGap": "2rem",
+      "itemGap": "1rem",
+      "pagePadding": "2rem"
+    }
+  },
+  "layout": {
+    "type": "two-column",
+    "columns": "35% 1fr",
+    "sidebarPosition": "left"
+  },
+  "structure": {
+    "sidebar": ["personal-info", "skills", "education"],
+    "main": ["summary", "experience", "projects", "customSections"]
+  },
+  "sectionVariants": {
+    "personal-info": "default",
+    "summary": "default",
+    "experience": "default",
+    "education": "default",
+    "skills": "sidebar",
+    "projects": "default",
+    "customSections": "default"
+  }
+}
+```
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="Resume data types" icon="database" href="/api/types/resume-data">
+    Core data types for resume content
+  </Card>
+  <Card title="Section types" icon="list" href="/api/types/sections">
+    Type definitions for resume sections
+  </Card>
+  <Card title="Template system" icon="paintbrush" href="/dev/templates/overview">
+    How the template system works
+  </Card>
+  <Card title="Creating templates" icon="code" href="/dev/templates/creating-templates">
+    Guide to building custom templates
+  </Card>
+</CardGroup>

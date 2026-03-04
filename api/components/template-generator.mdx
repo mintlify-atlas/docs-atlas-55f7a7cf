@@ -1,0 +1,327 @@
+---
+title: TemplateGenerator
+description: AI-powered template generation component
+---
+
+The `TemplateGenerator` component provides a UI for generating custom resume templates using AI. It accepts natural language descriptions and generates complete `TemplateConfig` objects via the `/api/generate-template` endpoint.
+
+## Import
+
+```typescript
+import { TemplateGenerator } from '../components/TemplateGenerator';
+```
+
+## Props
+
+This component takes no props. It manages its own internal state for the generation workflow.
+
+## Usage
+
+```typescript
+import { TemplateGenerator } from '../components/TemplateGenerator';
+
+function App() {
+  return (
+    <div>
+      <h1>Create Your Custom Template</h1>
+      <TemplateGenerator />
+    </div>
+  );
+}
+```
+
+## Component structure
+
+The component provides:
+
+1. **Example prompts** - Clickable examples that populate the input field
+2. **Prompt input** - Multi-line textarea for describing the desired template
+3. **Generate button** - Triggers AI generation
+4. **Loading state** - Shows spinner during generation
+5. **Error display** - Shows error messages if generation fails
+6. **Template preview** - Displays generated template details
+7. **Action buttons** - Save & Apply or Regenerate options
+
+## Internal state
+
+```typescript TemplateGenerator.tsx
+const [prompt, setPrompt] = useState('');
+const [loading, setLoading] = useState(false);
+const [error, setError] = useState<string | null>(null);
+const [generatedTemplate, setGeneratedTemplate] = useState<TemplateConfig | null>(null);
+```
+
+<ResponseField name="prompt" type="string">
+  User's template description input.
+</ResponseField>
+
+<ResponseField name="loading" type="boolean">
+  True during API request, disables input and shows spinner.
+</ResponseField>
+
+<ResponseField name="error" type="string | null">
+  Error message if generation fails, or null if no error.
+</ResponseField>
+
+<ResponseField name="generatedTemplate" type="TemplateConfig | null">
+  The generated template config, or null if not yet generated.
+</ResponseField>
+
+## Methods
+
+### handleGenerate
+
+Sends the prompt to the AI API and updates state with the result.
+
+```typescript TemplateGenerator.tsx
+const handleGenerate = async () => {
+  if (!prompt.trim()) {
+    setError('Please enter a description');
+    return;
+  }
+
+  setLoading(true);
+  setError(null);
+  setGeneratedTemplate(null);
+
+  try {
+    const response = await fetch('/api/generate-template', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prompt: prompt.trim() }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to generate template');
+    }
+
+    const template: TemplateConfig = await response.json();
+    setGeneratedTemplate(template);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Failed to generate template');
+  } finally {
+    setLoading(false);
+  }
+};
+```
+
+### handleSaveAndApply
+
+Saves the generated template and applies it to the current resume.
+
+```typescript TemplateGenerator.tsx
+const { saveCustomTemplate } = useCustomTemplates();
+const { setSelectedTemplate } = useResume();
+
+const handleSaveAndApply = () => {
+  if (!generatedTemplate) return;
+  
+  saveCustomTemplate(generatedTemplate);
+  setSelectedTemplate(generatedTemplate.id as any);
+  setPrompt('');
+  setGeneratedTemplate(null);
+  alert(`Template "${generatedTemplate.name}" saved and applied!`);
+};
+```
+
+### handleRegenerate
+
+Clears the generated template to allow regeneration with the same or modified prompt.
+
+```typescript TemplateGenerator.tsx
+const handleRegenerate = () => {
+  setGeneratedTemplate(null);
+};
+```
+
+## Example prompts
+
+The component includes built-in example prompts to guide users:
+
+```typescript TemplateGenerator.tsx
+const EXAMPLE_PROMPTS = [
+  "A creative template with purple accents, large name, and skills in a grid",
+  "A conservative corporate template with navy blue, serif fonts, and traditional layout",
+  "A minimal tech-focused template with monospace font and dark mode colors",
+  "An elegant template with gold accents, centered layout, and lots of white space",
+];
+```
+
+## API interaction
+
+### Request
+
+```http
+POST /api/generate-template
+Content-Type: application/json
+
+{
+  "prompt": "A modern template with blue sidebar and skills as bubbles"
+}
+```
+
+### Response (success)
+
+```json
+{
+  "id": "custom-modern-blue-1234567890",
+  "name": "Modern Blue Sidebar",
+  "description": "Contemporary two-column layout with blue sidebar and bubble-style skills",
+  "theme": {
+    "colors": { "primary": "#2563eb", /* ... */ },
+    "typography": { "fontFamily": "Inter, sans-serif", /* ... */ },
+    "spacing": { "sectionGap": "2rem", /* ... */ }
+  },
+  "layout": {
+    "type": "two-column",
+    "columns": "35% 1fr",
+    "sidebarPosition": "left"
+  },
+  "structure": {
+    "sidebar": ["personal-info", "skills", "education"],
+    "main": ["summary", "experience", "projects", "customSections"]
+  },
+  "sectionVariants": {
+    "personal-info": "default",
+    "skills": "bubbles",
+    /* ... */
+  }
+}
+```
+
+### Response (error)
+
+```json
+{
+  "error": "API key not configured",
+  "details": "GEMINI_API_KEY environment variable is missing"
+}
+```
+
+## Error handling
+
+The component handles various error scenarios:
+
+<Accordion title="Empty prompt">
+  Shows inline error: "Please enter a description"
+</Accordion>
+
+<Accordion title="API errors">
+  Displays error message returned from API (e.g., "API key not configured", "Invalid template structure")
+</Accordion>
+
+<Accordion title="Network errors">
+  Shows generic "Failed to generate template" message
+</Accordion>
+
+<Accordion title="Invalid JSON response">
+  Catches parse errors and displays error message
+</Accordion>
+
+## Styling
+
+The component uses inline styles with CSS variables from the app's design system:
+
+```typescript
+{
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 'var(--spacing-md)',
+  padding: 'var(--spacing-md)',
+  backgroundColor: 'var(--color-surface)',
+  borderRadius: 'var(--radius-md)',
+  border: '1px solid var(--color-border)',
+}
+```
+
+Available CSS variables:
+- `--spacing-sm`, `--spacing-md`, `--spacing-lg`
+- `--color-surface`, `--color-border`, `--color-text`, `--color-text-muted`
+- `--color-primary`
+- `--radius-md`
+
+## Loading animation
+
+The component includes a CSS spinner animation:
+
+```typescript TemplateGenerator.tsx
+<style>{`
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .spin {
+    animation: spin 1s linear infinite;
+  }
+`}</style>
+```
+
+Applied to the `Loader2` icon during generation.
+
+## Integration example
+
+Typical usage within the app:
+
+```typescript
+import { Card } from './ui/Card';
+import { TemplateGenerator } from './TemplateGenerator';
+import { TemplateSelector } from './TemplateSelector';
+
+function ResumeBuilder() {
+  return (
+    <div>
+      {/* Standard template selector */}
+      <TemplateSelector />
+      
+      {/* AI template generator */}
+      <TemplateGenerator />
+      
+      {/* Rest of resume editor */}
+      <PersonalInfoForm />
+      <ExperienceForm />
+      {/* ... */}
+    </div>
+  );
+}
+```
+
+## Accessibility
+
+The component includes:
+- Proper semantic HTML (buttons, textareas)
+- Disabled states during loading
+- Error messages displayed in a visible container
+- Keyboard-accessible example prompts
+
+## Dependencies
+
+The component depends on:
+
+```typescript TemplateGenerator.tsx
+import { useState } from 'react';
+import { Button } from './ui/Button';
+import { Card } from './ui/Card';
+import { TextArea } from './ui/Input';
+import { Sparkles, Loader2 } from 'lucide-react';
+import { TemplateConfig } from '../types/template';
+import { useCustomTemplates } from '../hooks/useCustomTemplates';
+import { useResume } from '../hooks/useResume';
+```
+
+## Related pages
+
+<CardGroup cols={2}>
+  <Card title="AI template generation guide" icon="sparkles" href="/features/ai-templates">
+    User guide for generating templates with AI
+  </Card>
+  <Card title="useCustomTemplates hook" icon="code" href="/api/hooks/use-custom-templates">
+    Hook for managing custom templates
+  </Card>
+  <Card title="TemplateConfig type" icon="file-code" href="/api/types/template-config">
+    Type definitions for template configuration
+  </Card>
+  <Card title="Template system overview" icon="paintbrush" href="/dev/templates/overview">
+    How the template system works
+  </Card>
+</CardGroup>

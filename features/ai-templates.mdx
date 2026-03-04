@@ -1,0 +1,245 @@
+---
+title: AI template generation
+description: Generate custom resume templates using AI based on your preferences
+---
+
+The Resume Builder includes an AI-powered template generator that creates custom resume layouts based on natural language descriptions. This feature uses Google's Gemini AI to generate complete template configurations that match your vision.
+
+## How it works
+
+The AI template generator:
+
+1. Takes a natural language description of your desired template
+2. Generates a complete `TemplateConfig` JSON with colors, fonts, layout, and section variants
+3. Saves the generated template to your browser's localStorage
+4. Applies the new template to your resume immediately
+
+<Info>AI-generated templates are stored separately from the three built-in templates (Classic, Modern, Minimal) and can be managed independently.</Info>
+
+## Accessing the template generator
+
+The Template Generator is available in the template selector interface:
+
+1. Open the Resume Builder application
+2. Look for the **Template Selector** card near the top of the editor
+3. Click the **"Generate with AI"** button to open the generator
+
+## Creating a custom template
+
+<Steps>
+  <Step title="Describe your template">
+    Enter a natural language description of the template you want. Be specific about:
+    - **Style**: Modern, traditional, minimalist, creative, corporate
+    - **Colors**: Primary accent colors, sidebar colors
+    - **Layout**: Single-column, two-column with sidebar
+    - **Typography**: Font preferences (serif, sans-serif, monospace)
+    - **Special features**: Skills as tags, timeline for experience, grid for projects
+    
+    Example prompts:
+    ```text
+    A creative template with purple accents, large name, and skills in a grid
+    ```
+    
+    ```text
+    A conservative corporate template with navy blue, serif fonts, and traditional layout
+    ```
+    
+    ```text
+    A minimal tech-focused template with monospace font and dark mode colors
+    ```
+  </Step>
+  
+  <Step title="Generate the template">
+    Click the **"Generate Template"** button. The AI will:
+    - Parse your description
+    - Generate appropriate colors, fonts, and spacing
+    - Choose a suitable layout type (single or two-column)
+    - Assign section variants that match your style
+    
+    <Note>Generation typically takes 2-5 seconds depending on API response time.</Note>
+  </Step>
+  
+  <Step title="Review the generated template">
+    Once generated, you'll see:
+    - **Template name**: Auto-generated based on your description
+    - **Description**: A brief summary of the template's characteristics
+    - **Preview**: The template is temporarily applied to see how it looks
+    
+    If you're not satisfied, click **"Regenerate"** to try again with the same prompt.
+  </Step>
+  
+  <Step title="Save and apply">
+    Click **"Save & Apply"** to:
+    - Save the template to localStorage under a unique ID
+    - Add it to your custom templates collection
+    - Apply it to your current resume
+    
+    The template will now appear in your template selector alongside the built-in templates.
+  </Step>
+</Steps>
+
+## Technical details
+
+### API endpoint
+
+The template generator calls a Cloudflare Pages Function:
+
+```typescript
+POST /api/generate-template
+
+Request Body:
+{
+  "prompt": "Your template description"
+}
+
+Response:
+{
+  "id": "custom-modern-blue",
+  "name": "Modern Blue",
+  "description": "Contemporary two-column layout...",
+  "theme": { /* theme config */ },
+  "layout": { /* layout config */ },
+  "structure": { /* section structure */ },
+  "sectionVariants": { /* variant assignments */ }
+}
+```
+
+### Template configuration structure
+
+Generated templates follow the `TemplateConfig` type:
+
+```typescript
+type TemplateConfig = {
+  id: string;
+  name: string;
+  description: string;
+  theme: {
+    colors: {
+      primary: string;
+      secondary: string;
+      background: string;
+      text: string;
+      textMuted: string;
+      border: string;
+      sidebarText?: string;
+    };
+    typography: {
+      fontFamily: string;
+      headingFamily?: string;
+      baseSize: string;
+      lineHeight: string;
+    };
+    spacing: {
+      sectionGap: string;
+      itemGap: string;
+      pagePadding: string;
+    };
+  };
+  layout: {
+    type: 'single-column' | 'two-column';
+    columns?: string;
+    sidebarPosition?: 'left' | 'right';
+  };
+  structure: {
+    sidebar?: SectionId[];
+    main: SectionId[];
+  };
+  sectionVariants: Record<SectionId, SectionVariant>;
+};
+```
+
+See [Template Types](/api/types/template-config) for complete type definitions.
+
+### Available section variants
+
+The AI can assign these variants to sections:
+
+- **personal-info**: `default`, `centered`, `minimal`
+- **summary**: `default`
+- **experience**: `default`, `timeline`, `minimal`, `compact`
+- **education**: `default`, `minimal`
+- **skills**: `default`, `tags`, `bubbles`, `bullet-list`, `sidebar`
+- **projects**: `default`, `grid`
+- **customSections**: `default`
+
+### Storage
+
+Generated templates are stored in localStorage under the key `custom-resume-templates`:
+
+```typescript
+interface CustomTemplate extends TemplateConfig {
+  createdAt: string; // ISO timestamp
+}
+```
+
+## Managing custom templates
+
+### Viewing custom templates
+
+Custom templates appear in the template selector alongside built-in templates. They are marked with a custom indicator.
+
+### Deleting custom templates
+
+To delete a custom template:
+
+1. Navigate to the template selector
+2. Find the custom template you want to remove
+3. Click the delete icon next to the template name
+
+<Warning>Deleting a custom template is permanent and cannot be undone. If you're currently using the deleted template, the app will revert to the Classic template.</Warning>
+
+## Best practices
+
+<CardGroup cols={2}>
+  <Card title="Be specific" icon="bullseye">
+    Include details about colors, fonts, layout preferences, and special styling for sections
+  </Card>
+  <Card title="Use examples" icon="lightbulb">
+    Reference well-known design styles (e.g., "like a tech startup resume" or "traditional academic CV")
+  </Card>
+  <Card title="Iterate" icon="arrows-rotate">
+    If the first result isn't perfect, regenerate with a more detailed prompt
+  </Card>
+  <Card title="Test print" icon="print">
+    Always preview the PDF export to ensure the template looks good on paper
+  </Card>
+</CardGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Generation fails with 'API key not configured'">
+    This error occurs when the Cloudflare Pages Function doesn't have access to the `GEMINI_API_KEY` environment variable. This typically happens in local development.
+    
+    **Solution**: Deploy the app to Cloudflare Pages with the API key configured, or set up local environment variables for development.
+  </Accordion>
+  
+  <Accordion title="Generated template looks broken">
+    Sometimes the AI generates invalid color codes or spacing values.
+    
+    **Solution**: Regenerate the template with a more specific prompt, or manually edit the template JSON in localStorage (advanced users only).
+  </Accordion>
+  
+  <Accordion title="Template doesn't match my description">
+    The AI interprets prompts based on common design patterns but may not perfectly match your vision.
+    
+    **Solution**: Add more specific details to your prompt, especially around colors (hex codes), font names, and layout preferences.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Template system overview" icon="paintbrush" href="/dev/templates/overview">
+    Learn how the template system works under the hood
+  </Card>
+  <Card title="Creating templates manually" icon="code" href="/dev/templates/creating-templates">
+    Build custom templates by writing JSON configurations
+  </Card>
+  <Card title="useCustomTemplates hook" icon="code" href="/api/hooks/use-custom-templates">
+    API reference for managing custom templates programmatically
+  </Card>
+  <Card title="TemplateGenerator component" icon="sparkles" href="/api/components/template-generator">
+    Component API for the AI template generator UI
+  </Card>
+</CardGroup>

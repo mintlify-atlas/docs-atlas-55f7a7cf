@@ -39,6 +39,7 @@
             "group": "Core Features",
             "pages": [
               "features/templates",
+              "features/ai-templates",
               "features/sections",
               "features/customization",
               "features/export-import"
@@ -106,20 +107,23 @@
             "group": "Types",
             "pages": [
               "api/types/resume-data",
-              "api/types/sections"
+              "api/types/sections",
+              "api/types/template-config"
             ]
           },
           {
             "group": "Hooks",
             "pages": [
-              "api/hooks/use-resume"
+              "api/hooks/use-resume",
+              "api/hooks/use-custom-templates"
             ]
           },
           {
             "group": "Components",
             "pages": [
               "api/components/forms",
-              "api/components/ui"
+              "api/components/ui",
+              "api/components/template-generator"
             ]
           }
         ]
